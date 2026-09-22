@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { api, formatApiError } from "@/lib/api";
+import { toast } from "sonner";
 import BookingCalendar from "@/components/admin/BookingCalendar";
 import CatalogPanel from "@/components/admin/CatalogPanel";
 import ContentPanel from "@/components/admin/ContentPanel";
@@ -51,7 +52,29 @@ export default function AdminPage() {
 }
 
 function BookingRow({ booking, reload }) {
-  const update = async (status) => { await api.patch(`/bookings/${booking.id}`, { status }); reload(); };
-  const markPaid = async () => { await api.patch(`/bookings/${booking.id}/payment`, { payment_status: "paid" }); reload(); };
-  return <article className="rounded-2xl border bg-white p-4 flex flex-wrap items-center justify-between gap-3"><div><b>{booking.date} · {booking.time} · {booking.service}</b><p className="text-sm text-[var(--muted-text)]">{booking.name} · {booking.phone} · {booking.payment_status}</p></div><div className="flex gap-2"><button onClick={() => update("confirmed")} className="rounded-full border border-green-300 px-3 py-1 text-xs">Confirmar</button><button onClick={markPaid} className="rounded-full border border-gold px-3 py-1 text-xs">Señal recibida</button><button onClick={() => update("cancelled")} className="rounded-full border border-red-300 px-3 py-1 text-xs">Cancelar</button></div></article>;
+  const [busy, setBusy] = useState("");
+  const bookingId = booking.id || booking._id;
+  const update = async (status) => {
+    setBusy(status);
+    try {
+      await api.patch(`/bookings/${encodeURIComponent(bookingId)}`, { status });
+      await reload();
+    } catch (error) {
+      toast.error(formatApiError(error));
+    } finally {
+      setBusy("");
+    }
+  };
+  const markPaid = async () => {
+    setBusy("paid");
+    try {
+      await api.patch(`/bookings/${encodeURIComponent(bookingId)}/payment`, { payment_status: "paid" });
+      await reload();
+    } catch (error) {
+      toast.error(formatApiError(error));
+    } finally {
+      setBusy("");
+    }
+  };
+  return <article className="rounded-2xl border bg-white p-4 flex flex-wrap items-center justify-between gap-3"><div><b>{booking.date} · {booking.time} · {booking.service}</b><p className="text-sm text-[var(--muted-text)]">{booking.name} · {booking.phone} · {booking.payment_status}</p></div><div className="flex gap-2"><button disabled={Boolean(busy) || !bookingId} onClick={() => update("confirmed")} className="rounded-full border border-green-300 px-3 py-1 text-xs disabled:opacity-50">{busy === "confirmed" ? "Guardando…" : "Confirmar"}</button><button disabled={Boolean(busy) || !bookingId || booking.payment_status === "paid"} onClick={markPaid} className="rounded-full border border-gold px-3 py-1 text-xs disabled:opacity-50">{busy === "paid" ? "Guardando…" : "Señal recibida"}</button><button disabled={Boolean(busy) || !bookingId} onClick={() => update("cancelled")} className="rounded-full border border-red-300 px-3 py-1 text-xs disabled:opacity-50">{busy === "cancelled" ? "Guardando…" : "Cancelar"}</button></div></article>;
 }
