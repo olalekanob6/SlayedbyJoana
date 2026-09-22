@@ -14,7 +14,7 @@
   ],
   "updated_files": [],
   "success_rate": {"backend": "100%", "frontend": "100%"},
-  "test_credentials": "joana@slayedbyjoana17.com / Joana17_Slayed! (admin)",
+  "test_credentials": "joana@slayedbyjoana17.com / <REDACTED> (admin)",
   "seed_data_creation": "Ninguna. Promo se activó y se restauró; reservas TEST_* de pytest se cancelan y limpian en fixtures. Reserva real 'pedro' bc868874-6672-4874-a796-469e49c77809 no fue tocada.",
   "retest_needed": false,
   "main_agent_can_self_test": true,

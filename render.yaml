@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: slayedbyjoana-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/
+    envVars:
+      - key: MONGO_URL
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: SITE_URL
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_EMAILS
+        sync: false
+      - key: STRIPE_API_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: OWNER_NOTIFY_EMAIL
+        sync: false
+      - key: EMERGENT_EMAIL_KEY
+        sync: false
+      - key: EMERGENT_LLM_KEY
+        sync: false
+      - key: INTEGRATION_PROXY_URL
+        sync: false
+      - key: EMAIL_FROM_NAME
+        sync: false
+      - key: BIZUM_NUMBER
+        sync: false

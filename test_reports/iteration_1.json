@@ -14,7 +14,7 @@
   ],
   "updated_files": ["/app/backend/tests/test_bookings_bizum.py"],
   "success_rate": {"backend": "100%", "frontend": "100%"},
-  "test_credentials": "Admin: joana@slayedbyjoana17.com / Joana17_Slayed! (login works via /api/auth/login with httpOnly cookie).",
+  "test_credentials": "Admin: joana@slayedbyjoana17.com / <REDACTED> (login works via /api/auth/login with httpOnly cookie).",
   "seed_data_creation": "Created 3 test bookings and 1 earning record (Box Braids Mujer, Boho, earnings test). All cleaned up after tests (bookings via admin cancel PATCH which hard-deletes; earnings cleaned via direct MongoDB delete on client name TEST_*).",
   "retest_needed": false,
   "main_agent_can_self_test": true,

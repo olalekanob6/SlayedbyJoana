@@ -29,7 +29,7 @@
     "/app/frontend/src/components/admin/SettingsPanel.js"
   ],
   "success_rate": {"backend": "90%", "frontend": "100%"},
-  "test_credentials": "Admin: joana@slayedbyjoana17.com / Joana17_Slayed!",
+  "test_credentials": "Admin: joana@slayedbyjoana17.com / <REDACTED>",
   "seed_data_creation": "Los tests crearon reservas TEST_* que se cancelan en el teardown del fixture; payment_transactions y earnings TEST_* se limpian vía MongoDB.",
   "retest_needed": false,
   "should_main_agent_self_test": true,

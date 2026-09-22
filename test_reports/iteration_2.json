@@ -14,7 +14,7 @@
   ],
   "updated_files": [],
   "success_rate": {"backend": "100%", "frontend": "100%"},
-  "test_credentials": "Admin: joana@slayedbyjoana17.com / Joana17_Slayed!",
+  "test_credentials": "Admin: joana@slayedbyjoana17.com / <REDACTED>",
   "seed_data_creation": "Creadas ~6 reservas TEST_* (online deposit, box braids mujer, boho, dos para daily-limit y earnings, más una TEST_UI_Bizum desde el navegador). Todas canceladas vía admin PATCH. payment_transactions y earnings TEST_* limpiadas vía MongoDB.",
   "retest_needed": false,
   "main_agent_can_self_test": true,

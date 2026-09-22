@@ -6,11 +6,11 @@ from datetime import date, timedelta
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://braids-bilbao.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
 API = f"{BASE_URL}/api"
 
-ADMIN_EMAIL = "joana@slayedbyjoana17.com"
-ADMIN_PASSWORD = "Joana17_Slayed!"
+ADMIN_EMAIL = os.environ.get("TEST_ADMIN_EMAIL", os.environ.get("ADMIN_EMAIL", ""))
+ADMIN_PASSWORD = os.environ.get("TEST_ADMIN_PASSWORD", os.environ.get("ADMIN_PASSWORD", ""))
 
 
 def _future_weekday(weekday: int, weeks_ahead: int = 10) -> str:
@@ -47,6 +47,8 @@ def _payload(name: str, date_: str, time_: str, payment_method: str = "bizum") -
 
 @pytest.fixture(scope="module", autouse=True)
 def clean_previous_test_data():
+    if not BASE_URL or not os.environ.get("MONGO_URL") or not os.environ.get("DB_NAME"):
+        pytest.skip("Set REACT_APP_BACKEND_URL, MONGO_URL and DB_NAME for integration tests")
     from dotenv import load_dotenv
     from pymongo import MongoClient
 
@@ -59,6 +61,8 @@ def clean_previous_test_data():
 
 @pytest.fixture(scope="module")
 def admin_session():
+    if not BASE_URL or not ADMIN_EMAIL or not ADMIN_PASSWORD:
+        pytest.skip("Set REACT_APP_BACKEND_URL and TEST_ADMIN_EMAIL/TEST_ADMIN_PASSWORD")
     session = requests.Session()
     response = session.post(f"{API}/auth/login", json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD})
     if response.status_code != 200:

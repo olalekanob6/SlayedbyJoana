@@ -19,7 +19,7 @@ import bcrypt
 import jwt
 import httpx
 import requests
-from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionRequest
+import stripe
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, UploadFile, File, Form
 from fastapi.responses import Response as RawResponse
 from starlette.middleware.cors import CORSMiddleware
@@ -523,16 +523,20 @@ def get_object(path: str):
     return resp.content, resp.headers.get("Content-Type", "application/octet-stream")
 
 # ---------------- Stripe payments (deposit / señal) ----------------
-def stripe_checkout_for(request: Request) -> StripeCheckout:
-    host_url = str(request.base_url)
-    return StripeCheckout(
-        api_key=os.environ["STRIPE_API_KEY"],
-        webhook_url=f"{host_url}api/webhook/stripe",
-    )
+def configure_stripe() -> None:
+    stripe.api_key = os.environ["STRIPE_API_KEY"]
+
 
 class CheckoutRequest(BaseModel):
     booking_id: str
     origin_url: str
+
+
+def stripe_webhook_event(payload: bytes, signature: str | None):
+    secret = os.environ["STRIPE_WEBHOOK_SECRET"]
+    if not signature:
+        raise ValueError("Missing Stripe-Signature header")
+    return stripe.Webhook.construct_event(payload, signature, secret)
 
 async def record_earning(booking: Optional[dict], method: str) -> None:
     if not booking:
@@ -574,33 +578,42 @@ async def create_checkout(req: CheckoutRequest, request: Request):
         raise HTTPException(status_code=400, detail="Esta reserva no usa pago con tarjeta")
     total = float(booking.get("total_amount") or booking.get("deposit_amount") or DEFAULT_DEPOSIT)
     deposit = float(booking.get("deposit_amount") or round(total / 2, 2))
-    stripe_checkout = stripe_checkout_for(request)
-    checkout_req = CheckoutSessionRequest(
-        amount=deposit,
-        currency="eur",
-        success_url=f"{req.origin_url}/payment/success?session_id={{CHECKOUT_SESSION_ID}}",
-        cancel_url=f"{req.origin_url}/payment/cancel?booking_id={req.booking_id}",
-        metadata={
-            "booking_id": req.booking_id,
-            "type": "deposit_payment",
-            "service": booking.get("service", ""),
-        },
-    )
+    configure_stripe()
     try:
-        session = await stripe_checkout.create_checkout_session(checkout_req)
+        session = await asyncio.to_thread(
+            stripe.checkout.Session.create,
+            mode="payment",
+            payment_method_types=["card"],
+            line_items=[{
+                "price_data": {
+                    "currency": "eur",
+                    "product_data": {"name": f"Señal de reserva - {booking.get('service', 'Servicio')}",
+                                      "description": "Depósito del 50 % de la reserva"},
+                    "unit_amount": int(round(deposit * 100)),
+                },
+                "quantity": 1,
+            }],
+            success_url=f"{req.origin_url}/payment/success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{req.origin_url}/payment/cancel?booking_id={req.booking_id}",
+            metadata={
+                "booking_id": req.booking_id,
+                "type": "deposit_payment",
+                "service": booking.get("service", ""),
+            },
+        )
     except Exception as exc:
         logger.error("Stripe checkout failed for booking %s: %s", req.booking_id, exc)
         raise HTTPException(status_code=502, detail="No se pudo iniciar el pago con tarjeta")
     await db.payment_transactions.insert_one({
-        "session_id": session.session_id, "booking_id": req.booking_id, "lookup_key": "deposit_payment",
+        "session_id": session.id, "booking_id": req.booking_id, "lookup_key": "deposit_payment",
         "amount": deposit, "currency": "eur",
         "status": "initiated", "payment_status": "pending",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "updated_at": datetime.now(timezone.utc).isoformat(),
     })
     await db.bookings.update_one({"id": req.booking_id},
-                                 {"$set": {"payment_session_id": session.session_id}})
-    return {"checkout_url": session.url, "session_id": session.session_id}
+                                 {"$set": {"payment_session_id": session.id}})
+    return {"checkout_url": session.url, "session_id": session.id}
 
 @api_router.get("/payments/status/{session_id}")
 async def payment_status(session_id: str, request: Request):
@@ -609,9 +622,10 @@ async def payment_status(session_id: str, request: Request):
         raise HTTPException(status_code=404, detail="Transacción no encontrada")
     if record.get("payment_status") != "paid":
         try:
-            status = await stripe_checkout_for(request).get_checkout_status(session_id)
+            configure_stripe()
+            status = await asyncio.to_thread(stripe.checkout.Session.retrieve, session_id)
             if status.payment_status == "paid" or status.status == "complete":
-                await mark_paid(session_id)
+                await mark_paid(session_id, getattr(status, "payment_intent", None))
                 record = await db.payment_transactions.find_one({"session_id": session_id}, {"_id": 0})
         except Exception as exc:
             logger.warning("Stripe status check failed for %s: %s", session_id, exc)
@@ -623,20 +637,23 @@ async def stripe_webhook(request: Request):
     payload = await request.body()
     signature = request.headers.get("Stripe-Signature")
     try:
-        event = await stripe_checkout_for(request).handle_webhook(payload, signature)
+        event = stripe_webhook_event(payload, signature)
     except Exception as exc:
         logger.warning("Stripe webhook rejected: %s", exc)
         raise HTTPException(status_code=400, detail="Invalid signature")
-    if event.event_type in ("checkout.session.completed", "checkout.session.async_payment_succeeded"):
-        await mark_paid(event.session_id)
-    elif event.event_type == "checkout.session.async_payment_failed":
+    event_type = event.get("type")
+    session = event.get("data", {}).get("object", {})
+    event_session_id = session.get("id")
+    if event_type in ("checkout.session.completed", "checkout.session.async_payment_succeeded"):
+        await mark_paid(event_session_id, session.get("payment_intent"))
+    elif event_type == "checkout.session.async_payment_failed":
         await db.payment_transactions.update_one(
-            {"session_id": event.session_id},
+            {"session_id": event_session_id},
             {"$set": {"status": "failed", "payment_status": "failed",
                       "updated_at": datetime.now(timezone.utc).isoformat()}})
-    elif event.event_type == "checkout.session.expired":
+    elif event_type == "checkout.session.expired":
         await db.payment_transactions.update_one(
-            {"session_id": event.session_id},
+            {"session_id": event_session_id},
             {"$set": {"status": "expired", "payment_status": "expired",
                       "updated_at": datetime.now(timezone.utc).isoformat()}})
     return {"status": "ok"}
@@ -875,7 +892,6 @@ async def update_booking(booking_id: str, payload: BookingStatus, user=Depends(g
             except Exception as e:
                 logger.error("Status email failed for booking %s: %s", booking_id, e)
     if payload.status == "cancelled":
-        await db.bookings.delete_one({"id": booking_id})
         await notify_waitlist_opening(booking.get("date", ""), booking.get("time", ""))
     return {"ok": True, "client_notified": client_notified}
 
@@ -1522,6 +1538,10 @@ async def send_appointment_reminders():
 
 @app.on_event("startup")
 async def startup():
+    required = ("MONGO_URL", "DB_NAME", "JWT_SECRET", "FRONTEND_URL", "SITE_URL", "ADMIN_EMAIL", "ADMIN_PASSWORD")
+    missing = [name for name in required if not os.environ.get(name)]
+    if missing:
+        raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}")
     await db.users.create_index("email", unique=True)
     await db.login_attempts.create_index("identifier")
     await seed_admin()
@@ -1558,7 +1578,7 @@ async def startup():
 
 app.include_router(api_router)
 
-origins = [o for o in [os.environ.get("FRONTEND_URL"), "http://localhost:3000"] if o]
+origins = [os.environ["FRONTEND_URL"].rstrip("/")]
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,

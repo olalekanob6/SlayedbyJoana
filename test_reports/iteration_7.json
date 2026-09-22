@@ -7,7 +7,7 @@
   "critical_code_review_comments": [],
   "updated_files": [],
   "success_rate": {"backend": "100% (13/13)", "frontend": "100% smoke"},
-  "test_credentials": "joana@slayedbyjoana17.com / Joana17_Slayed!",
+  "test_credentials": "joana@slayedbyjoana17.com / <REDACTED>",
   "seed_data_creation": "Datos TEST_* creados y limpiados por fixtures; settings restaurados; reserva real 'pedro' preservada.",
   "retest_needed": false,
   "main_agent_can_self_test": true,

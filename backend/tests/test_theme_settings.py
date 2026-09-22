@@ -4,9 +4,9 @@ import re
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://braids-bilbao.preview.emergentagent.com").rstrip("/")
-ADMIN_EMAIL = "joana@slayedbyjoana17.com"
-ADMIN_PASSWORD = "Joana17_Slayed!"
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
+ADMIN_EMAIL = os.environ.get("TEST_ADMIN_EMAIL", os.environ.get("ADMIN_EMAIL", ""))
+ADMIN_PASSWORD = os.environ.get("TEST_ADMIN_PASSWORD", os.environ.get("ADMIN_PASSWORD", ""))
 
 DEFAULT_THEME = {
     "accent": "#E56B9E",
@@ -20,6 +20,8 @@ DEFAULT_THEME = {
 
 @pytest.fixture(scope="module")
 def admin_session():
+    if not BASE_URL or not ADMIN_EMAIL or not ADMIN_PASSWORD:
+        pytest.skip("Set REACT_APP_BACKEND_URL and TEST_ADMIN_EMAIL/TEST_ADMIN_PASSWORD")
     s = requests.Session()
     r = s.post(f"{BASE_URL}/api/auth/login", json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}, timeout=30)
     if r.status_code != 200:
