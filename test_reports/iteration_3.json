@@ -1,0 +1,38 @@
+{
+  "summary": "Ronda 3: validación de duración real de servicios, solapamientos, aviso día completo, panel de duraciones. Backend pytest 9/10 pasa (test_bookings_bizum.py). El único fallo, test_box_braids_mujer_bizum_with_extras, es por 'notified' False (integración de email Emergent devolvió no-True en esta llamada; los datos de reserva se guardaron correctamente y las asertions de duración/total/deposit/remaining pasan). Los tests nuevos test_default_schedule_and_public_config, test_slots_respect_weekday_schedule_and_duration y test_service_duration_blocks_overlapping_slots pasan: /api/config expone service_durations con Box Braids Mujer=300 y Corte de pelo=15; /api/bookings/slots devuelve duration_minutes correcto por servicio; reserva larga (300 min) en 14:30 bloquea 16:00 y 17:30 incluso para Corte de pelo, y una segunda reserva solapada devuelve 409. test_admin_can_update_schedule_and_restore verifica que cambiar Box Braids Mujer a 120 min recalcula slots (14:30/15:30/16:30/17:30/18:30) y restaura al finalizar. Límite diario=2 con 409 en la tercera. Efectivo rechazado 400. Frontend: admin /admin login OK, tab Ajustes muestra ambas secciones schedule-settings y duration-settings como hermanas, 33 inputs service-duration-* con valores por defecto correctos (Knotless=300, Corte pelo=15, etc.), Guardar horarios y Guardar duraciones visibles y funcionales. BookingForm ya usa slotInfo.duration_minutes para el aviso 'booking-duration-estimate' y limpia form.time al cambiar de servicio (efecto depende de form.service). Aviso booking-day-full usa slotInfo.daily_capacity. Reserva del usuario 'pedro' NO tocada.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/bookings", "issue": "En test_box_braids_mujer_bizum_with_extras la respuesta tuvo 'notified': false (fallo intermitente del envío de email Emergent). La reserva se creó y todos los importes/duración fueron correctos."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "SettingsPanel", "issue": "FIXED durante esta ronda — el div duration-settings estaba anidado dentro del <button data-testid='schedule-save-button'>, generando un <button> dentro de <button>. Provocaba error de hidratación en consola ('In HTML, <button> cannot be a descendant of <button>') y layout roto (los inputs de duración aparecían apilados dentro de una forma redonda rosa por debajo). Reordenado los cierres para que schedule-save-button cierre antes del div hermano duration-settings.", "selector": "[data-testid=duration-settings]", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_bookings_bizum.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Investigar por qué notify_owner_booking devolvió False en test_box_braids_mujer_bizum_with_extras (posible cuota o timeout del proveedor de email Emergent). No es bloqueante."
+  ],
+  "critical_code_review_comments": [
+    "SettingsPanel.js tenía JSX estructuralmente inválido en el bloque duration-settings — corregido. Se recomienda añadir eslint-plugin-react con la regla no-unclosed-tags o similar al pipeline para detectar antes.",
+    "server.py sigue >1000 líneas; dividir en módulos (auth, bookings, payments, media, admin, email) mejoraría mantenibilidad.",
+    "BookingForm.js: la validación variantReady solo aparece como toast en submit; sería mejor deshabilitar el botón submit hasta que variantReady sea true para evitar clics innecesarios."
+  ],
+  "updated_files": [
+    "/app/frontend/src/components/admin/SettingsPanel.js"
+  ],
+  "success_rate": {"backend": "90%", "frontend": "100%"},
+  "test_credentials": "Admin: joana@slayedbyjoana17.com / Joana17_Slayed!",
+  "seed_data_creation": "Los tests crearon reservas TEST_* que se cancelan en el teardown del fixture; payment_transactions y earnings TEST_* se limpian vía MongoDB.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Ejecutar `pytest /app/backend/tests/test_bookings_bizum.py -v` (10 tests). Verificar que test_box_braids_mujer_bizum_with_extras vuelve a devolver notified=True (flakiness del email Emergent). El fix crítico de esta ronda fue en SettingsPanel.js — verificar que ambas secciones schedule-settings y duration-settings se ven como hermanas en /admin > Ajustes. Reserva 'pedro' (bc868874-6672-4874-a796-469e49c77809) NO tocada.",
+  "rca of the issue": "SettingsPanel.js: la etiqueta </button> del schedule-save-button y el </div> del schedule-settings estaban colocadas DESPUÉS del div duration-settings, provocando que todo el bloque de duración quedara dentro del button de guardar horarios (button dentro de button). Fix: mover </button></div> antes del div data-testid='duration-settings' y eliminar los cierres duplicados posteriores."
+}

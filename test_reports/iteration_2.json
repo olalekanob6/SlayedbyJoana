@@ -1,0 +1,23 @@
+{
+  "summary": "Full E2E validation of Slayed by Joana17 with new rules (2 bookings/day max, Wed closed, Mon/Tue/Thu/Fri 14:30, Sat/Sun 11:00, Stripe live + Bizum coexisting at exactly 50%). Backend: 9/9 pytest tests pass (test_bookings_bizum.py) covering online checkout at 36€, cash rejected 400, default schedule + public /api/config, slots by weekday, Box Braids Mujer 72€/36€/36€ with kanekalon x2 + rizos extras, Boho 75€/37.5€/37.5€, daily limit=2 with 409 on 3rd, admin settings update+restore, earnings only records the 36€ deposit. Frontend UI verified: Wednesday shows booking-day-closed indicator; Monday time-select lists exactly 14:30/16:00/17:30; Saturday lists 11:00/12:30/14:00/15:30/17:00; footer horas correctas (Wed=Cerrado, Lun-Vie 14:30-19:00, Sáb-Dom 11:00-18:30); dos métodos Tarjeta + Bizum visibles, 'efectivo/cash' ausentes; total 72€ y resto 36€ correctos; Bizum copy button copia exactamente '36€ · Bizum 643723181' al portapapeles y muestra toast; QR /qr-slayedbyjoana17.png devuelve 200 image/png; admin Ajustes panel muestra schedule-settings, daily-capacity=2, slot-interval=90 y horas por día. Stripe live NO se completó ningún pago; sólo se creó y limpió la Checkout Session de prueba durante el test backend. Toda la data TEST_* limpiada tras las pruebas.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_bookings_bizum.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py sigue con ~1000 líneas — considerar dividir en módulos (auth, bookings, payments, media, admin) para mantenibilidad.",
+    "SettingsPanel muestra start/end de miércoles editables (14:30/19:00) aunque open=false; UI ya deshabilita los inputs por 'disabled={!day.open}', pero el valor visible puede confundir. Considerar mostrar '—' cuando el día esté cerrado.",
+    "Booking hard-delete on cancel (via PATCH status=cancelled) parece hacer soft/hard según implementación; verificar audit trail para reportes históricos."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "Admin: joana@slayedbyjoana17.com / Joana17_Slayed!",
+  "seed_data_creation": "Creadas ~6 reservas TEST_* (online deposit, box braids mujer, boho, dos para daily-limit y earnings, más una TEST_UI_Bizum desde el navegador). Todas canceladas vía admin PATCH. payment_transactions y earnings TEST_* limpiadas vía MongoDB.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Ejecutar `pytest /app/backend/tests/test_bookings_bizum.py -v` (9 tests). Cualquier cambio de settings debe restaurar los valores originales (daily_capacity=2, slot_interval_minutes=90, schedule por defecto con wednesday.open=false). Bizum copy button copia el string 'IMPORTE€ · Bizum NÚMERO'. QR /qr-slayedbyjoana17.png ya existe y apunta a slayedbyjoana17.com (Cloudflare orange cloud sigue impidiendo resolver el dominio público — no tratar como bug de código).",
+  "rca of the issue": "N/A - no issues found"
+}

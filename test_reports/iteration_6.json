@@ -1,0 +1,10 @@
+{
+  "summary": "CMS de catálogo/contenido validado por testing agent en iteration_5 y dirección del estudio actualizada a Barinaga 6, bajo derecha, Bilbao.",
+  "backend": "11/11 pytest pasan, incluida edición/restauración de precios, extras, service_overrides, site_content y promo",
+  "frontend": "yarn build correcto; smoke admin confirma pestañas Catálogo/Contenido; smoke footer confirma dirección y mapa actualizados",
+  "catalog_cms": "Precios por matriz/tamaños/opciones/simple, extras, nombre, descripciones ES/EN, visibilidad y orden editables",
+  "content_cms": "Textos principales ES/EN, marquee, puntos Sobre Joana, FAQ y promo editables",
+  "address": "Barinaga 6, bajo derecha, Bilbao — editable desde Ajustes y sincronizada con el mapa",
+  "test_data": "TEST_* limpiados; reserva real restaurada y preservada",
+  "issues_open": []
+}

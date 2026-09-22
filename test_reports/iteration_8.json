@@ -1,0 +1,11 @@
+{
+  "summary": "Servicios personalizados, etiqueta de día completo y lista de espera real implementados y validados.",
+  "backend": "13/13 pytest pasan; cubre custom service crear/reservar/borrar y waitlist join/duplicado/cancelación/contactada/eliminación",
+  "frontend": "yarn build correcto; smoke admin confirma formulario de servicio personalizado y panel Espera; testing agent iteration_7 sin incidencias",
+  "custom_services": "Categoría, nombre, duración, precio simple/opciones, descripciones ES/EN, visibilidad, orden y eliminación solo para servicios personalizados",
+  "capacity_visual": "El calendario muestra 'Completo' cuando el día alcanza el límite configurado",
+  "waitlist": "Nombre, teléfono y email opcional; duplicados evitados; entradas gestionables en Admin > Espera; aviso por email si la clienta deja email; aviso a Joana al liberarse hueco",
+  "not_checked": "No se envió un email real a una clienta de lista de espera para no usar una dirección real; la ruta sin email y el aviso a Joana sí se probaron",
+  "test_data": "TEST_* limpiados; settings restaurados; reserva real preservada",
+  "issues_open": []
+}

@@ -1,0 +1,9 @@
+{
+  "summary": "Validación final de duración real configurable, solapamientos, aviso de día completo/lista de espera y decisión de mantener recordatorios por email en lugar de WhatsApp.",
+  "backend": "10/10 pytest pasan en /app/backend/tests/test_bookings_bizum.py",
+  "frontend": "yarn build compila correctamente; iteration_3 validó panel de duraciones y formulario tras corregir JSX",
+  "email_note": "El proveedor de email devolvió 429 temporal por ráfagas de pruebas. Se añadió serialización/throttling y reintentos en send_email; la suite ya no depende de una entrega externa inmediata.",
+  "whatsapp": "Descartado por la usuaria; se mantienen recordatorios por email existentes",
+  "test_data": "TEST_* limpiados; reserva real 'pedro' y su transacción pendiente no fueron modificadas",
+  "issues_open": []
+}

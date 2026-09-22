@@ -1,0 +1,22 @@
+{
+  "summary": "CMS validado: backend 11/11 pytest pasan incluyendo test_admin_can_update_catalog_content_and_prices que actualiza precio matriz Box Braids Mujer a 60€, extra kanekalon-lisa a 7€, service_overrides, site_content y promo; verifica /api/config, POST /api/bookings devuelve total 79€ y depósito 39.5€, y restaura settings. Frontend: login admin OK, pestañas Catálogo y Contenido renderizan correctamente, todos los data-testid solicitados presentes (catalog-panel, catalog-service-knotless, price-knotless-Hombro-0, extra-price-kanekalon-lisa, catalog-save-button, admin-tab-content/catalog, content-panel, promo-enabled-toggle, promo-text-es/en, content-save-button). Flujo completo promo: activar + guardar → promo-banner con texto ES visible en landing; desactivar → banner desaparece. Regresión Stripe/Bizum 50%, horarios, duración real, límite 2/día y miércoles cerrado sigue pasando.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_bookings_bizum.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py > 1200 líneas: valorar dividir en módulos (auth, bookings, admin, media) para mantenibilidad futura.",
+    "En get_settings/PUT admin_put_settings el price_book se fusiona con merge_dict_deep pero validate_price_tree usa rango 0-1000 sin distinguir enteros de floats; ok por ahora.",
+    "PromoIn y ServiceOverrideIn no sanitizan HTML/JS del texto; si en el futuro se renderiza como HTML habría que escapar; hoy se pinta como texto en React así que está seguro."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "joana@slayedbyjoana17.com / Joana17_Slayed! (admin)",
+  "seed_data_creation": "Ninguna. Promo se activó y se restauró; reservas TEST_* de pytest se cancelan y limpian en fixtures. Reserva real 'pedro' bc868874-6672-4874-a796-469e49c77809 no fue tocada.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Ronda 5: se validó CMS de catálogo y contenido + promo end-to-end vía data-testid (promo-banner aparece/desaparece en landing según toggle). No hubo fallos. Todo restaurado."
+}
