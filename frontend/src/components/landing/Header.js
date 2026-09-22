@@ -13,8 +13,28 @@ const LINKS = [
 
 export default function Header() {
   const { lang, setLang, t } = useLanguage();
-  const { user, loginWithGoogle, logout } = useAuth();
+  const { user, loginWithEmail, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
+
+  const submitLogin = async (event) => {
+    event.preventDefault();
+    setLoginError("");
+    setLoggingIn(true);
+    try {
+      await loginWithEmail(email, password);
+      setPassword("");
+      setShowLogin(false);
+    } catch (error) {
+      setLoginError(error?.response?.data?.detail || "Correo o contraseña incorrectos.");
+    } finally {
+      setLoggingIn(false);
+    }
+  };
 
   return (
     <header data-testid="header-navigation" className="fixed top-0 inset-x-0 z-50 border-b border-[var(--border-soft)] bg-[var(--surface)]/80 backdrop-blur-xl">
@@ -45,6 +65,12 @@ export default function Header() {
             </button>
           </div>
 
+          {!user && (
+            <button data-testid="header-login-button" onClick={() => { setShowLogin(true); setLoginError(""); }}
+                    className="hidden sm:inline-flex rounded-full border border-[var(--border-soft)] px-4 py-2 text-sm font-semibold text-[var(--foreground-strong)] hover:border-gold hover:text-gold transition-colors">
+              Iniciar sesión
+            </button>
+          )}
           {user ? (
             <div data-testid="header-user-chip" className="hidden sm:flex items-center gap-2">
               {user.picture ? (
@@ -86,6 +112,7 @@ export default function Header() {
               {t(l.key)}
             </a>
           ))}
+          {!user && <button data-testid="mobile-login-button" onClick={() => { setShowLogin(true); setOpen(false); setLoginError(""); }} className="text-left text-base font-semibold text-[var(--foreground-strong)]">Iniciar sesión</button>}
           {user && (
             <button data-testid="mobile-logout-button" onClick={() => { logout(); setOpen(false); }}
                     className="text-left text-base text-[var(--muted-text)]">
@@ -97,6 +124,18 @@ export default function Header() {
             <Calendar className="h-4 w-4" />
             {t("nav.book")}
           </a>
+        </div>
+      )}
+
+      {showLogin && (
+        <div className="fixed inset-0 z-[60] grid place-items-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-label="Iniciar sesión">
+          <form onSubmit={submitLogin} className="w-full max-w-md rounded-3xl border border-[var(--border-soft)] bg-[var(--surface)] p-6 shadow-2xl">
+            <div className="mb-6 flex items-center justify-between"><h2 className="font-display text-2xl font-bold">Iniciar sesión</h2><button type="button" onClick={() => setShowLogin(false)} aria-label="Cerrar" className="text-2xl text-[var(--muted-text)]">×</button></div>
+            <label className="mb-4 block text-sm font-semibold">Correo electrónico<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="username" className="mt-2 w-full rounded-xl border border-[var(--border-soft)] bg-transparent px-4 py-3" /></label>
+            <label className="mb-4 block text-sm font-semibold">Contraseña<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" className="mt-2 w-full rounded-xl border border-[var(--border-soft)] bg-transparent px-4 py-3" /></label>
+            {loginError && <p role="alert" className="mb-4 text-sm text-red-500">{loginError}</p>}
+            <button type="submit" disabled={loggingIn} className="w-full rounded-full bg-gold px-5 py-3 font-semibold text-white disabled:opacity-60">{loggingIn ? "Iniciando sesión…" : "Iniciar sesión"}</button>
+          </form>
         </div>
       )}
     </header>

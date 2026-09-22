@@ -83,7 +83,9 @@ async def login(payload: LoginIn, request: Request, response: Response):
         if locked_until and datetime.fromisoformat(locked_until) > datetime.now(timezone.utc):
             raise HTTPException(status_code=429, detail="Demasiados intentos. Inténtalo de nuevo en 15 minutos.")
     user = await db.users.find_one({"email": email})
-    if not user or not verify_password(payload.password, user["password_hash"]):
+    if (not user or not user.get("password_hash") or
+            not verify_password(payload.password, user["password_hash"]) or
+            user.get("role") != "admin" or email not in ADMIN_EMAILS):
         await db.login_attempts.update_one(
             {"identifier": identifier},
             {"$inc": {"count": 1},
@@ -124,10 +126,9 @@ async def get_google_user(request: Request) -> dict:
 
 async def get_admin_user(request: Request) -> dict:
     try:
-        return await get_current_user(request)
+        user = await get_current_user(request)
     except HTTPException:
-        pass
-    user = await get_google_user(request)
+        user = await get_google_user(request)
     if user.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Sin permisos de administración")
     return user

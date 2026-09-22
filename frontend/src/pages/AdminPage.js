@@ -11,7 +11,11 @@ import WaitlistPanel from "@/components/admin/WaitlistPanel";
 const tabs = [["bookings", "Reservas"], ["catalog", "Catálogo"], ["content", "Contenido"], ["earnings", "Ganancias"], ["waitlist", "Lista de espera"], ["settings", "Ajustes"]];
 
 export default function AdminPage() {
-  const { user, loginWithGoogle, logout } = useAuth();
+  const { user, loginWithEmail, logout } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
   const [bookings, setBookings] = useState([]);
   const [tab, setTab] = useState("bookings");
   const [selectedDate, setSelectedDate] = useState("");
@@ -21,8 +25,22 @@ export default function AdminPage() {
     if (user?.role === "admin") api.get("/bookings").then((r) => setBookings(r.data)).catch(() => {});
   }, [user]);
 
+  const submitLogin = async (event) => {
+    event.preventDefault();
+    setLoginError("");
+    setLoggingIn(true);
+    try {
+      await loginWithEmail(email, password);
+      setPassword("");
+    } catch (error) {
+      setLoginError(error?.response?.data?.detail || "Correo o contraseña incorrectos.");
+    } finally {
+      setLoggingIn(false);
+    }
+  };
+
   const byDay = useMemo(() => bookings.reduce((all, booking) => ({ ...all, [booking.date]: [...(all[booking.date] || []), booking] }), {}), [bookings]);
-  if (!user) return <div className="min-h-screen grid place-items-center p-6"><button onClick={() => loginWithGoogle("/admin")} className="rounded-full bg-gold px-6 py-3 font-bold text-white">Iniciar sesión</button></div>;
+  if (!user) return <div className="min-h-screen grid place-items-center bg-[var(--page-bg)] p-6"><form onSubmit={submitLogin} className="w-full max-w-md rounded-3xl border border-[var(--border-soft)] bg-[var(--surface)] p-6 shadow-xl"><h1 className="mb-6 font-display text-2xl font-bold">Iniciar sesión</h1><label className="mb-4 block text-sm font-semibold">Correo electrónico<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="username" className="mt-2 w-full rounded-xl border px-4 py-3" /></label><label className="mb-4 block text-sm font-semibold">Contraseña<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" className="mt-2 w-full rounded-xl border px-4 py-3" /></label>{loginError && <p role="alert" className="mb-4 text-sm text-red-500">{loginError}</p>}<button type="submit" disabled={loggingIn} className="w-full rounded-full bg-gold px-6 py-3 font-bold text-white disabled:opacity-60">{loggingIn ? "Iniciando sesión…" : "Iniciar sesión"}</button></form></div>;
   if (user.role !== "admin") return <div className="min-h-screen grid place-items-center p-6 text-center"><p>No tienes permisos de administración.</p><button onClick={logout} className="ml-3 underline">Salir</button></div>;
   return <div className="min-h-screen bg-[var(--page-bg)] p-4 sm:p-8"><div className="mx-auto max-w-7xl">
     <header className="mb-8 flex flex-wrap items-center justify-between gap-4"><div><h1 className="font-display text-3xl font-bold">Panel de administración</h1><p className="text-sm text-[var(--muted-text)]">{user.email}</p></div><button onClick={logout} className="rounded-full border px-4 py-2 text-sm">Salir</button></header>

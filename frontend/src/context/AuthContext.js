@@ -17,8 +17,14 @@ export const AuthProvider = ({ children }) => {
       .catch(() => setUser(false));
   }, []);
 
+  const loginWithEmail = async (email, password) => {
+    const response = await api.post("/auth/login", { email, password });
+    setUser(response.data);
+    return response.data;
+  };
+
   const loginWithGoogle = (path = "/") => {
-    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+    // Legacy OAuth flow retained for existing client sessions.
     const redirectUrl = window.location.origin + path;
     window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
   };
@@ -29,7 +35,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, setUser, loginWithEmail, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

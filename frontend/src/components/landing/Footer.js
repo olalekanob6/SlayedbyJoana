@@ -91,7 +91,7 @@ export default function Footer() {
           </p>
           <p className="text-xs text-[var(--muted-text)]">{t("footer.rights")}</p>
           <a href="/admin" data-testid="footer-admin-link" className="text-xs text-[var(--muted-text)]/60 hover:text-gold transition-colors">
-            Acceso admin
+            Iniciar sesión
           </a>
         </div>
       </div>
