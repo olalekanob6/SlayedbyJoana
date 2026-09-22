@@ -1554,11 +1554,14 @@ async def startup():
         await db.media.insert_many([
             {"id": str(uuid.uuid4()), **m, "type": "image", "is_deleted": False,
              "seeded": True, "created_at": now} for m in SEED_MEDIA])
-    try:
-        init_storage()
-        logger.info("Object storage initialized")
-    except Exception as e:
-        logger.error("Storage init failed: %s", e)
+    if EMERGENT_KEY:
+        try:
+            init_storage()
+            logger.info("Object storage initialized")
+        except Exception as e:
+            logger.error("Storage init failed: %s", e)
+    else:
+        logger.info("Object storage disabled: EMERGENT_LLM_KEY is not configured")
     try:
         from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
