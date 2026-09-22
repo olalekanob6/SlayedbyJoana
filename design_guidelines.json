@@ -1,0 +1,237 @@
+{
+  "brand_identity": {
+    "name": "Slayed by Joana17",
+    "location": "Bilbao, País Vasco, España",
+    "tagline": "Eleva tu estilo con el arte en Trenzas, Locs y Estilismo Afro en Bilbao",
+    "vibe": "Afro Urban Luxury & Precision Craftsmanship. High contrast, warm obsidian depth, glowing copper-gold accents, tactile typography, streetwear-meets-couture afro salon aesthetic.",
+    "target_audience": "Personas de Bilbao y alrededores que buscan estilismo afro de alta precisión, cuidado del cabello saludable sin tensión, diseños exclusivos (zig-zag, corazones, abalorios) y transparencia en precios."
+  },
+  "colors": {
+    "background_dark": "#0e0d0c",
+    "background_card": "#181614",
+    "background_surface": "#221e1a",
+    "background_light": "#FAF6F0",
+    "primary_gold": "#E5A93C",
+    "primary_gold_hover": "#F3B84C",
+    "secondary_copper": "#C86D4B",
+    "accent_terracotta": "#D9532F",
+    "text_main": "#F8F5F0",
+    "text_muted": "#A8A096",
+    "text_dark": "#121110",
+    "border_subtle": "rgba(229, 169, 60, 0.15)",
+    "border_glow": "rgba(229, 169, 60, 0.4)",
+    "glass_bg": "rgba(24, 22, 20, 0.75)",
+    "glass_border": "rgba(255, 255, 255, 0.1)"
+  },
+  "typography": {
+    "headline_font": "Syne, Cabinet Grotesk, sans-serif",
+    "body_font": "Outfit, Inter, sans-serif",
+    "hero_h1": "text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08]",
+    "section_h2": "text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight",
+    "card_h3": "text-xl sm:text-2xl font-semibold",
+    "body_text": "text-base leading-relaxed text-muted-foreground",
+    "label_text": "text-xs font-mono uppercase tracking-[0.2em] text-primary_gold"
+  },
+  "layout_and_grids": {
+    "container_padding": "px-4 sm:px-6 lg:px-12 max-w-7xl mx-auto",
+    "section_spacing": "py-16 sm:py-24 lg:py-32",
+    "bento_hero_grid": "grid grid-cols-1 lg:grid-cols-12 gap-8 items-center",
+    "services_grid": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8",
+    "why_us_grid": "grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8",
+    "testimonials_grid": "grid grid-cols-1 md:grid-cols-3 gap-6"
+  },
+  "key_features_and_content_sections": [
+    {
+      "section_id": "header_nav",
+      "title": "Sticky Header with Language Selector & Instant Booking CTA",
+      "description": "Glassmorphism bar featuring Logo ('Slayed by Joana17'), navigation links (Servicios, Por qué Joana, Galería, Sobre Joana, FAQ), ES/EN Toggle Switch, and direct 'Reservar Cita' button.",
+      "test_ids": {
+        "nav_container": "header-navigation",
+        "brand_logo": "brand-logo",
+        "nav_services": "nav-link-services",
+        "nav_why_us": "nav-link-why-us",
+        "nav_gallery": "nav-link-gallery",
+        "nav_about": "nav-link-about",
+        "nav_faq": "nav-link-faq",
+        "lang_toggle_es": "language-toggle-es",
+        "lang_toggle_en": "language-toggle-en",
+        "header_cta_button": "header-booking-cta-button"
+      }
+    },
+    {
+      "section_id": "hero_section",
+      "title": "Hero Section - High Impact Afro Urban Aesthetic",
+      "description": "Bold headline: 'Eleva tu estilo con el arte en Trenzas, Locs y Estilismo Afro en Bilbao'. Subtitle emphasizing health, tension-free technique and custom designs. CTA button 'AGENDAR MI CITA EN BILBAO'. Includes high-resolution imagery, glowing badges, and immediate quick-booking trigger.",
+      "test_ids": {
+        "hero_heading": "hero-main-heading",
+        "hero_subtitle": "hero-subtitle",
+        "hero_cta_button": "hero-booking-cta-button",
+        "hero_badge": "hero-location-badge",
+        "hero_image": "hero-stylist-image"
+      }
+    },
+    {
+      "section_id": "social_proof_bar",
+      "title": "Social Proof & Trust Bar",
+      "description": "Highlighted stats: ⭐ 4.9/5 Rating (120+ opiniones), 7+ Años de Experiencia, Salón Privado en Bilbao, +1,500 Clientes Satisfechos.",
+      "test_ids": {
+        "proof_bar": "social-proof-bar",
+        "stat_rating": "social-proof-stat-rating",
+        "stat_experience": "social-proof-stat-experience",
+        "stat_location": "social-proof-stat-location",
+        "stat_clients": "social-proof-stat-clients"
+      }
+    },
+    {
+      "section_id": "why_choose_joana",
+      "title": "Por qué elegir Slayed by Joana17",
+      "description": "3 Core Pillars: 1) Técnica sin Tensión (Protegemos tu cuero cabelludo y salud capilar), 2) Diseños Exclusivos (Zig-zag, Corazones, Abalorios, Fulani art), 3) Transparencia Total en Precios (Sin sorpresas, Kanekalon de máxima calidad incluido u opcional).",
+      "test_ids": {
+        "why_us_section": "why-choose-joana-section",
+        "pillar_tension_free": "why-us-pillar-tension-free",
+        "pillar_exclusive_designs": "why-us-pillar-exclusive-designs",
+        "pillar_price_transparency": "why-us-pillar-price-transparency"
+      }
+    },
+    {
+      "section_id": "services_catalog",
+      "title": "Interactive Catalog of Services & Transparent Prices",
+      "description": "Interactive Tabs for Mujer / Hombre / Extras with detailed service cards, price tags, estimated duration, included materials, and a direct 'Reservar este servicio' button for each item.",
+      "services_data": {
+        "mujer": [
+          {"id": "knotless", "name": "Knotless Braids", "price": "45€ - 95€", "duration": "3 - 5h", "desc": "Trenzas sin nudo ultraligeras, máxima comodidad desde el primer día."},
+          {"id": "box_braids", "name": "Box Braids Clásicas", "price": "40€ - 85€", "duration": "3 - 4.5h", "desc": "Estilo atemporal con división perfecta y acabados duraderos."},
+          {"id": "twist", "name": "Twist (Passion / Senegalese)", "price": "50€ - 90€", "duration": "3.5 - 5h", "desc": "Torcidos definidos con textura suave y volumen natural."},
+          {"id": "butterfly_locs", "name": "Butterfly Locs / Soft Locs", "price": "80€ - 150€", "duration": "4 - 6h", "desc": "Locs estilo bohemio con acabado desarmado super chic."},
+          {"id": "fulani", "name": "Fulani Braids", "price": "Desde 85€", "duration": "4 - 5.5h", "desc": "Combinación de cornrows frontales con trenzas sueltas y abalorios."},
+          {"id": "cornrows_mujer", "name": "Cornrows / Coletas con Diseños", "price": "35€ - 70€", "duration": "1.5 - 3h", "desc": "Líneas pulidas, geometría zig-zag, corazones o patrones personalizados."},
+          {"id": "wig_install", "name": "Instalación de Peluca (Wig Inst)", "price": "50€", "duration": "1.5 - 2h", "desc": "Trenzado base, pegado profesional, personalizado de frontal y peinado."}
+        ],
+        "hombre": [
+          {"id": "retwist_locs", "name": "Retwist de Locs", "price": "30€ - 80€", "duration": "1.5 - 2.5h", "desc": "Mantenimiento de raíces, lavado profundo y nutrición capilar."},
+          {"id": "instant_locs", "name": "Instant Locs", "price": "50€ - 120€", "duration": "2 - 4h", "desc": "Creación instantánea de locs firmes con aguja de crochet."},
+          {"id": "box_braids_hombre", "name": "Box Braids / Individuales Hombre", "price": "25€ - 45€", "duration": "1.5 - 2.5h", "desc": "Trenzas cortas o medianas con particiones limpias."},
+          {"id": "barrel_cornrows", "name": "Barrel Twists & Cornrows Hombre", "price": "30€ - 45€", "duration": "1 - 2h", "desc": "Diseños urbanos en relieve, barrel braids o pegadas con forma."}
+        ],
+        "extras": [
+          {"id": "corte_lineas", "name": "Perfilado / Corte de Líneas", "price": "8€", "duration": "15 min", "desc": "Limpieza de contornos a navaja/trimmer para un acabado impecable."},
+          {"id": "detox_locs", "name": "Tratamiento Detox para Locs", "price": "35€", "duration": "45 min", "desc": "Baño efervescente purificante con vinagre de manzana y aceites esenciales."},
+          {"id": "kanekalon_pack", "name": "Packs de Pelo Kanekalon Premium", "price": "Desde 6€", "duration": "Inmediato", "desc": "Venta de extensiones de alta calidad resistente al agua caliente y diversos tonos."}
+        ]
+      },
+      "test_ids": {
+        "catalog_section": "services-catalog-section",
+        "tab_mujer": "catalog-tab-mujer",
+        "tab_hombre": "catalog-tab-hombre",
+        "tab_extras": "catalog-tab-extras",
+        "service_card_knotless": "service-card-knotless",
+        "service_book_button": "service-card-book-button"
+      }
+    },
+    {
+      "section_id": "portfolio_gallery",
+      "title": "Galería de Trabajos Reales & Estilos",
+      "description": "Visual Grid showcasing Knotless Braids, Locs Retwist, Fulani with Beads, Zig-Zag Patterns, and Men's Barrel Braids with zoom modal preview.",
+      "test_ids": {
+        "gallery_section": "portfolio-gallery-section",
+        "gallery_item": "gallery-item-card",
+        "gallery_modal": "gallery-image-modal"
+      }
+    },
+    {
+      "section_id": "booking_form_system",
+      "title": "Interactive Online Booking System with Mobile Notification Alert",
+      "description": "Step-by-step or seamless integrated form: 1) Select Service, 2) Select Date & Time slot, 3) Enter Client Details (Name, Phone, Email, Notes/Photos), 4) Submit Booking. Displays a realistic Simulated Mobile Push Notification banner showing '📲 ¡Nueva Reserva Recibida en el móvil de Joana!' to fulfill the requirement.",
+      "test_ids": {
+        "booking_form": "online-booking-form",
+        "input_service": "booking-service-select",
+        "input_date": "booking-date-picker",
+        "input_time": "booking-time-select",
+        "input_name": "booking-client-name",
+        "input_phone": "booking-client-phone",
+        "input_email": "booking-client-email",
+        "input_notes": "booking-client-notes",
+        "submit_button": "booking-form-submit-button",
+        "mobile_notification_toast": "simulated-mobile-notification"
+      }
+    },
+    {
+      "section_id": "about_joana",
+      "title": "Sobre Joana - CEO & Hair Artist",
+      "description": "Humanizing section with Joana's story, passion for Afro hair health, strict hygiene protocols, warm atmosphere, and dedication to giving every client confidence and 'Slayed' vibes.",
+      "test_ids": {
+        "about_section": "about-joana-section",
+        "about_image": "about-joana-portrait",
+        "about_bio_text": "about-joana-bio"
+      }
+    },
+    {
+      "section_id": "testimonials_section",
+      "title": "Testimonios Reales de Clientas y Clientes",
+      "description": "3 Authentic Customer Reviews with verified star ratings, client names, service received, and photo/avatar.",
+      "test_ids": {
+        "testimonials_section": "testimonials-section",
+        "testimonial_card_1": "testimonial-card-1",
+        "testimonial_card_2": "testimonial-card-2",
+        "testimonial_card_3": "testimonial-card-3"
+      }
+    },
+    {
+      "section_id": "faq_accordion",
+      "title": "Preguntas Frecuentes (FAQ)",
+      "description": "Accordion component resolving key questions: 1) ¿Está incluido el pelo Kanekalon o se compra aparte? (Incluido en paquetes seleccionados o a la venta desde 6€), 2) ¿Cuánto duran las trenzas o locs?, 3) ¿Cómo confirmo mi reserva?, 4) ¿Duele el proceso de trenzado? (Garantía sin tensión).",
+      "test_ids": {
+        "faq_section": "faq-accordion-section",
+        "faq_item_1": "faq-item-kanekalon",
+        "faq_item_2": "faq-item-duration",
+        "faq_item_3": "faq-item-reservation",
+        "faq_item_4": "faq-item-tension"
+      }
+    },
+    {
+      "section_id": "footer_and_map",
+      "title": "Footer, Bilbao Map & Operating Hours",
+      "description": "Footer with embedded Bilbao interactive map widget / directions, opening hours (Lunes a Sábado: 09:30 - 20:00), address, WhatsApp direct link, Instagram handle, and final high-conversion CTA.",
+      "test_ids": {
+        "footer_container": "footer-section",
+        "footer_map": "bilbao-map-container",
+        "footer_hours": "operating-hours-info",
+        "footer_whatsapp": "whatsapp-contact-link",
+        "footer_instagram": "instagram-profile-link",
+        "footer_final_cta": "footer-final-cta-button"
+      }
+    }
+  ],
+  "image_urls": {
+    "hero_braids": "https://images.unsplash.com/photo-1594254773847-9fce26e950bc?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwxfHxhZnJvJTIwYnJhaWRzJTIwaGFpcnN0eWxlJTIwa25vdGxlc3MlMjBmdWxhbml8ZW58MHx8fHwxNzg4ODM3NDE4fDA&ixlib=rb-4.1.0&q=85",
+    "knotless_detail": "https://images.unsplash.com/photo-1663851071150-b6617bbee927?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHw0fHxhZnJvJTIwYnJhaWRzJTIwaGFpcnN0eWxlJTIwa25vdGxlc3MlMjBmdWxhbml8ZW58MHx8fHwxNzg4ODM3NDE4fDA&ixlib=rb-4.1.0&q=85",
+    "geometric_braids": "https://images.unsplash.com/photo-1592328906746-0a3ca0bde253?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwyfHxhZnJvJTIwYnJhaWRzJTIwaGFpcnN0eWxlJTIwa25vdGxlc3MlMjBmdWxhbml8ZW58MHx8fHwxNzg4ODM3NDE4fDA&ixlib=rb-4.1.0&q=85",
+    "fulani_model": "https://images.unsplash.com/photo-1572955304332-bf714bd49add?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwzfHxhZnJvJTIwYnJhaWRzJTIwaGFpcnN0eWxlJTIwa25vdGxlc3MlMjBmdWxhbml8ZW58MHx8fHwxNzg4ODM3NDE4fDA&ixlib=rb-4.1.0&q=85",
+    "locs_woman": "https://images.unsplash.com/photo-1640059567558-29deb499a518?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwaGFpciUyMHNhbG9uJTIwc3R5bGlzdCUyMGJyYWlkcyUyMGxvY3N8ZW58MHx8fHwxNzg4ODM3NDE4fDA&ixlib=rb-4.1.0&q=85",
+    "men_locs": "https://images.unsplash.com/photo-1625536658679-42d76fd167c0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHw0fHxhZnJpY2FuJTIwaGFpciUyMHNhbG9uJTIwc3R5bGlzdCUyMGJyYWlkcyUyMGxvY3N8ZW58MHx8fHwxNzg4ODM3NDE4fDA&ixlib=rb-4.1.0&q=85",
+    "dreadlocks_close": "https://images.unsplash.com/photo-1640059567352-aa684b7fcc67?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHwzfHxhZnJpY2FuJTIwaGFpciUyMHNhbG9uJTIwc3R5bGlzdCUyMGJyYWlkcyUyMGxvY3N8ZW58MHx8fHwxNzg4ODM3NDE4fDA&ixlib=rb-4.1.0&q=85",
+    "ponytail_braid": "https://images.unsplash.com/photo-1527203561188-dae1bc1a417f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDB8MHwxfHNlYXJjaHwzfHxhZnJvJTIwdXJiYW4lMjBmYXNoaW9uJTIwcG9ydHJhaXQlMjBicmFpZHN8ZW58MHx8fHwxNzg4ODM3NDE4fDA&ixlib=rb-4.1.0&q=85",
+    "cornrows_jacket": "https://images.unsplash.com/photo-1673470907547-1c0c6a996095?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDB8MHwxfHNlYXJjaHw0fHxhZnJvJTIwdXJiYW4lMjBmYXNoaW9uJTIwcG9ydHJhaXQlMjBicmFpZHN8ZW58MHx8fHwxNzg4ODM3NDE4fDA&ixlib=rb-4.1.0&q=85"
+  },
+  "internationalization": {
+    "default_language": "es",
+    "supported_languages": ["es", "en"],
+    "implementation": "React State based dictionary hook (useTranslation or simple json translation object in src/constants/translations.js) allowing seamless instant toggle between Spanish and English."
+  },
+  "instructions_to_main_agent": [
+    "Build a stunning, modern, high-conversion landing page and booking application for Slayed by Joana17 in Bilbao.",
+    "Follow the Afro Urban Luxury aesthetic with warm obsidian dark background (#0e0d0c), glowing gold (#E5A93C) and copper (#C86D4B) accents.",
+    "Implement language selection (ES/EN) toggle at the top navigation with instant translation of all headings, CTAs, tab labels, FAQs, and booking form steps.",
+    "Ensure the booking form is fully interactive with realistic date selection, service selection, client info inputs, backend API submission (or local storage fallback + server endpoint), and a simulated mobile push notification toast pop-up that notifies the client '📲 ¡Notificación enviada al móvil de Joana17!'",
+    "Include all requested sections: Hero, Social Proof, Por qué elegir Joana, Service & Price Catalog (with Mujer/Hombre/Extras tabs), Work Gallery, Testimonios, Sobre Joana, FAQ accordion, and Footer with Bilbao Map & Operating Hours.",
+    "Ensure every interactive element has a unique 'data-testid' attribute as specified in the schema.",
+    "Use Lucide icons (Calendar, Scissors, Sparkles, Clock, MapPin, Phone, Instagram, Star, CheckCircle, ShieldCheck, Heart, Globe, Bell) for visual polish."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": {
+    "testing": "All interactive and key informational elements MUST include a data-testid attribute.",
+    "contrast": "Ensure text visibility against dark backgrounds with minimum 4.5:1 ratio.",
+    "responsive": "Mobile first responsive design with grid collapse and touch-friendly targets.",
+    "spacing": "Generous spacing (p-6, p-8, py-16, py-24) to ensure breathable, premium feel.",
+    "components": "Use Shadcn primitives (Tabs, Accordion, Dialog, Calendar, Select, Input, Toaster/Sonner) customized to match the Afro Urban theme."
+  }
+}
