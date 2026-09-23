@@ -1405,19 +1405,28 @@ async def remove_admin(email: str, user=Depends(get_admin_user)):
 
 @api_router.get("/admin/earnings")
 async def admin_earnings(user=Depends(get_admin_user)):
-    items = await db.earnings.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    earnings = await db.earnings.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    active_items = []
+    for earning in earnings:
+        booking_id = str(earning.get("booking_id", "")).strip()
+        if not booking_id:
+            continue
+        booking = await db.bookings.find_one(booking_identity_filter(booking_id), {"_id": 0, "id": 1, "status": 1})
+        if not booking or booking.get("status") == "cancelled":
+            continue
+        active_items.append(earning)
     today = datetime.now(timezone.utc).date()
     week_start = today - timedelta(days=today.weekday())
     month_start = today.replace(day=1)
     def total_since(d0) -> float:
-        return round(sum(i["amount"] for i in items if i["created_at"][:10] >= d0.isoformat()), 2)
+        return round(sum(float(i.get("amount", 0)) for i in active_items if str(i.get("created_at", ""))[:10] >= d0.isoformat()), 2)
     return {
         "today": total_since(today),
         "week": total_since(week_start),
         "month": total_since(month_start),
-        "total": round(sum(i["amount"] for i in items), 2),
-        "count": len(items),
-        "items": items[:50],
+        "total": round(sum(float(i.get("amount", 0)) for i in active_items), 2),
+        "count": len(active_items),
+        "items": active_items[:50],
     }
 
 @api_router.get("/reviews")
