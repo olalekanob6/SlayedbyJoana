@@ -19,6 +19,7 @@ export default function Footer() {
 
   const weekdays = t("footer.weekdays");
   const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(studioAddress)}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+  const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(studioAddress)}`;
 
   return (
     <footer id="contacto" data-testid="footer-section" className="border-t border-[var(--border-soft)] bg-[var(--surface-soft)]">
@@ -77,7 +78,8 @@ export default function Footer() {
               className="absolute inset-0 h-full w-full grayscale-[35%] contrast-[1.05]"
               loading="lazy"
             />
-            <div className="absolute bottom-4 left-4 rounded-xl bg-[var(--surface)]/90 backdrop-blur border border-[var(--border-soft)] px-4 py-3 flex items-center gap-2">
+            <a href={mapsLink} target="_blank" rel="noopener noreferrer" aria-label={`Abrir ubicación de Slayed by Joana17 en Google Maps`} data-testid="footer-map-link" className="absolute inset-0 z-10" />
+            <div className="absolute bottom-4 left-4 z-20 rounded-xl bg-[var(--surface)]/90 backdrop-blur border border-[var(--border-soft)] px-4 py-3 flex items-center gap-2 pointer-events-none">
               <MapPin className="h-4 w-4 text-gold" />
               <span data-testid="footer-studio-address" className="text-sm font-medium">{studioAddress}</span>
             </div>
