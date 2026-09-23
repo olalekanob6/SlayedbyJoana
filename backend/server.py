@@ -818,7 +818,7 @@ async def booking_calendar(start: str, end: str, service_key: str = "", service:
         capacity = int(settings.get("daily_capacity") or 2)
         dates[date_value] = {
             "open": bool(day_settings.get("open")) and bool(available_slots),
-            "full": len(docs) >= capacity or len(available_slots) == len(taken),
+            "full": bool(day_settings.get("open")) and (len(docs) >= capacity or len(available_slots) == len(taken)),
             "available_slots": max(len(available_slots) - len(taken), 0),
             "bookings_count": len(docs),
         }
