@@ -39,6 +39,7 @@ export default function BookingForm({ preselectedService, onSuccess }) {
   const [sentPayable, setSentPayable] = useState(0);
   const [bizumNumber, setBizumNumber] = useState("");
   const [slotInfo, setSlotInfo] = useState(EMPTY_SLOT_INFO);
+  const [calendarInfo, setCalendarInfo] = useState({});
   const [myBookings, setMyBookings] = useState([]);
   const [waitlistForm, setWaitlistForm] = useState({ name: "", phone: "", email: "" });
   const [waitlistSending, setWaitlistSending] = useState(false);
@@ -81,6 +82,18 @@ export default function BookingForm({ preselectedService, onSuccess }) {
       })
       .catch(() => setSlotInfo(EMPTY_SLOT_INFO));
   }, [form.date, form.service, allServiceOptions]);
+
+  useEffect(() => {
+    const start = new Date();
+    const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 60);
+    const serviceOption = allServiceOptions.find((option) => option.id === form.service);
+    const params = new URLSearchParams({
+      start: start.toISOString().slice(0, 10),
+      end: end.toISOString().slice(0, 10),
+      service_key: serviceOption?.key || serviceOption?.name || form.service,
+    });
+    api.get(`/bookings/calendar?${params.toString()}`).then((r) => setCalendarInfo(r.data.dates || {})).catch(() => setCalendarInfo({}));
+  }, [form.service, allServiceOptions]);
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e?.target ? e.target.value : e }));
 
@@ -484,6 +497,13 @@ export default function BookingForm({ preselectedService, onSuccess }) {
 
                 <div>
                   <Label className="text-xs uppercase tracking-wider text-[var(--muted-text)]">{t("booking.date")}</Label>
+                  <div data-testid="booking-availability-calendar" className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-7">
+                    {Object.entries(calendarInfo).slice(0, 35).map(([date, info]) => {
+                      const disabled = !info.open || info.full;
+                      const selected = form.date === date;
+                      return <button key={date} type="button" disabled={disabled} onClick={() => setForm((f) => ({ ...f, date, time: "" }))} title={disabled ? (info.full ? "Este día está completo" : "Este día no está disponible") : "Disponible"} className={`relative rounded-xl border px-2 py-2 text-xs ${selected ? "border-gold bg-gold text-white" : disabled ? "border-red-200 bg-red-50 text-red-400 line-through" : "border-[var(--border-soft)] hover:border-gold"}`}><span className="block font-semibold">{new Date(`${date}T12:00:00`).toLocaleDateString(lang === "en" ? "en-GB" : "es-ES", { weekday: "short" })}</span><span>{new Date(`${date}T12:00:00`).getDate()}/{new Date(`${date}T12:00:00`).getMonth() + 1}</span>{disabled && <span className="absolute right-1 top-0 text-red-500">×</span>}</button>;
+                    })}
+                  </div>
                   <Input data-testid="booking-date-picker" type="date" min={today} required
                          value={form.date} onChange={set("date")}
                          className="mt-2 bg-[var(--surface-soft)] border-[var(--border-soft)] h-12" />

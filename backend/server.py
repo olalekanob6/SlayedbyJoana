@@ -20,6 +20,7 @@ import jwt
 import httpx
 import requests
 import stripe
+from bson import ObjectId
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, UploadFile, File, Form
 from fastapi.responses import Response as RawResponse
 from starlette.middleware.cors import CORSMiddleware
@@ -796,6 +797,33 @@ async def booked_slots(date: str, service_key: str = "", service: str = ""):
         "duration_minutes": duration,
     }
 
+@api_router.get("/bookings/calendar")
+async def booking_calendar(start: str, end: str, service_key: str = "", service: str = ""):
+    start_date = parse_booking_date(start)
+    end_date = parse_booking_date(end)
+    if end_date < start_date or (end_date - start_date).days > 92:
+        raise HTTPException(status_code=400, detail="El rango debe tener entre 0 y 92 días")
+    settings = await get_settings()
+    duration = service_duration_minutes(settings, service_key, service)
+    dates = {}
+    for offset in range((end_date - start_date).days + 1):
+        date_value = (start_date + timedelta(days=offset)).isoformat()
+        day_settings, all_slots = schedule_for_date(settings, date_value)
+        available_slots = fitting_slots(day_settings, all_slots, duration)
+        docs = await db.bookings.find(
+            {"date": date_value, "status": {"$ne": "cancelled"}},
+            {"_id": 0, "time": 1, "service": 1, "service_key": 1, "duration_minutes": 1},
+        ).to_list(200)
+        taken = {slot for slot in available_slots if slot_overlaps_booking(slot, duration, docs, settings)}
+        capacity = int(settings.get("daily_capacity") or 2)
+        dates[date_value] = {
+            "open": bool(day_settings.get("open")) and bool(available_slots),
+            "full": len(docs) >= capacity or len(available_slots) == len(taken),
+            "available_slots": max(len(available_slots) - len(taken), 0),
+            "bookings_count": len(docs),
+        }
+    return {"start": start, "end": end, "dates": dates, "duration_minutes": duration}
+
 @api_router.post("/bookings")
 async def create_booking(payload: BookingCreate, request: Request):
     try:
@@ -867,21 +895,35 @@ async def my_bookings(request: Request):
 
 @api_router.get("/bookings")
 async def list_bookings(user=Depends(get_admin_user)):
-    return await db.bookings.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    documents = await db.bookings.find({}).sort("created_at", -1).to_list(500)
+    result = []
+    for booking in documents:
+        mongo_id = booking.pop("_id", None)
+        if not booking.get("id") and mongo_id is not None:
+            booking["id"] = str(mongo_id)
+        result.append(booking)
+    return result
 
 class BookingStatus(BaseModel):
     status: str
+
+def booking_identity_filter(booking_id: str) -> dict:
+    filters = [{"id": booking_id}]
+    if ObjectId.is_valid(booking_id):
+        filters.append({"_id": ObjectId(booking_id)})
+    return {"$or": filters}
 
 @api_router.patch("/bookings/{booking_id}")
 async def update_booking(booking_id: str, payload: BookingStatus, user=Depends(get_admin_user)):
     if payload.status not in ("pending", "confirmed", "cancelled"):
         raise HTTPException(status_code=400, detail="Estado no válido")
-    res = await db.bookings.update_one({"id": booking_id}, {"$set": {"status": payload.status}})
+    identity = booking_identity_filter(booking_id)
+    res = await db.bookings.update_one(identity, {"$set": {"status": payload.status}})
     if res.matched_count == 0:
         raise HTTPException(status_code=404, detail="Reserva no encontrada")
     client_notified = False
     if payload.status in ("confirmed", "cancelled"):
-        booking = await db.bookings.find_one({"id": booking_id}, {"_id": 0})
+        booking = await db.bookings.find_one(identity, {"_id": 0})
         if booking and booking.get("email"):
             try:
                 if payload.status == "confirmed":
@@ -1034,11 +1076,14 @@ class BookingPaymentPatch(BaseModel):
 async def update_booking_payment(booking_id: str, payload: BookingPaymentPatch, user=Depends(get_admin_user)):
     if payload.payment_status not in ("pending", "paid", "bizum_pending", "cash_on_site"):
         raise HTTPException(status_code=400, detail="Estado de pago no válido")
-    res = await db.bookings.update_one({"id": booking_id}, {"$set": {"payment_status": payload.payment_status}})
+    identity = booking_identity_filter(booking_id)
+    res = await db.bookings.update_one(identity, {"$set": {"payment_status": payload.payment_status}})
     if res.matched_count == 0:
         raise HTTPException(status_code=404, detail="Reserva no encontrada")
     if payload.payment_status == "paid":
-        booking = await db.bookings.find_one({"id": booking_id}, {"_id": 0})
+        booking = await db.bookings.find_one(identity, {"_id": 0})
+        if booking and not booking.get("id"):
+            booking["id"] = booking_id
         await record_earning(booking, (booking or {}).get("payment_method", "bizum"))
     return {"ok": True}
 
@@ -1443,8 +1488,19 @@ async def upload_media(file: UploadFile = File(...), caption_es: str = Form(""),
         raise HTTPException(status_code=400, detail="Archivo demasiado grande (máx 100MB)")
     ext = file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else "bin"
     path = f"{APP_NAME}/gallery/{uuid.uuid4()}.{ext}"
-    result = put_object(path, data, ct)
-    doc = {"id": str(uuid.uuid4()), "storage_path": result["path"],
+    try:
+        result = put_object(path, data, ct)
+    except requests.RequestException:
+        logger.exception("Media storage upload failed")
+        raise HTTPException(status_code=503, detail="El almacenamiento de archivos no está disponible. Configura el storage en Render.")
+    except (KeyError, ValueError, TypeError):
+        logger.exception("Media storage returned an invalid response")
+        raise HTTPException(status_code=503, detail="El almacenamiento devolvió una respuesta no válida.")
+    storage_path = result.get("path") if isinstance(result, dict) else None
+    if not storage_path:
+        logger.error("Media storage response did not include a path")
+        raise HTTPException(status_code=503, detail="El almacenamiento no devolvió la URL del archivo.")
+    doc = {"id": str(uuid.uuid4()), "storage_path": storage_path,
            "type": "video" if ct.startswith("video") else "image",
            "caption_es": caption_es, "caption_en": caption_en, "content_type": ct,
            "is_deleted": False, "created_at": datetime.now(timezone.utc).isoformat()}

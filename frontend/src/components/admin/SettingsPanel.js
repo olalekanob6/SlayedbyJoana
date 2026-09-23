@@ -322,7 +322,7 @@ export default function SettingsPanel() {
 
       <div data-testid="date-exception-settings" className="rounded-2xl border border-[var(--border-soft)] bg-white p-6 space-y-5">
         <div>
-          <p className="font-display font-bold text-lg flex items-center gap-2"><CalendarDays className="h-5 w-5 text-gold" /> Excepciones por fecha</p>
+          <p className="font-display font-bold text-lg flex items-center gap-2"><CalendarDays className="h-5 w-5 text-gold" /> Disponibilidad por fecha</p>
           <p className="text-sm text-[var(--muted-text)] mt-1">Abre, cierra o cambia el horario de una fecha concreta. No modifica ningún lunes, martes ni otra semana.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-[1.2fr_1fr_1fr_1fr_auto] gap-3 items-end">
