@@ -14,6 +14,18 @@ export default function GalleryPanel() {
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState("");
 
+  const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/quicktime", "video/webm"]);
+  const chooseFile = (file) => {
+    if (!file) return;
+    if (!allowedTypes.has(file.type)) {
+      toast.error("Formato no permitido. Usa JPG, PNG, WEBP, GIF, MP4, MOV o WEBM.");
+      return;
+    }
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setSelected(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
   const load = async () => {
     setLoading(true);
     try {
@@ -30,12 +42,7 @@ export default function GalleryPanel() {
 
   useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
 
-  const chooseFile = (event) => {
-    const file = event.target.files?.[0];
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setSelected(file || null);
-    setPreviewUrl(file ? URL.createObjectURL(file) : "");
-  };
+  const onInputChange = (event) => chooseFile(event.target.files?.[0]);
 
   const clearSelection = () => {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -85,8 +92,14 @@ export default function GalleryPanel() {
       <div className="rounded-2xl border border-[var(--border-soft)] bg-white p-5 sm:p-6">
         <div className="mb-5 flex items-center justify-between gap-3"><div><h2 className="font-display text-xl font-bold">Galería</h2><p className="text-sm text-[var(--muted-text)]">Fotos y vídeos que aparecen en la galería pública.</p></div><ImagePlus className="h-6 w-6 text-gold" /></div>
         <form onSubmit={upload} className="space-y-4">
-          <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm" onChange={chooseFile} className="block w-full text-sm" />
-          {previewUrl && <div className="relative max-w-sm overflow-hidden rounded-xl border"><button type="button" onClick={clearSelection} aria-label="Quitar selección" className="absolute right-2 top-2 z-10 rounded-full bg-black/60 p-1 text-white"><X className="h-4 w-4" /></button>{selected?.type.startsWith("video/") ? <video src={previewUrl} controls className="max-h-64 w-full object-contain" /> : <img src={previewUrl} alt="Vista previa" className="max-h-64 w-full object-contain" />}</div>}
+          <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime,video/webm" onChange={onInputChange} className="sr-only" tabIndex={-1} aria-hidden="true" />
+          <div onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); chooseFile(event.dataTransfer.files?.[0]); }} className="rounded-2xl border-2 border-dashed border-[var(--border-soft)] p-5 text-center">
+            <button type="button" data-testid="gallery-select-file" onClick={() => inputRef.current?.click()} className="rounded-full bg-gold px-5 py-2.5 text-sm font-bold text-white">Seleccionar archivo</button>
+            <p className="mt-2 text-xs text-[var(--muted-text)]">o arrastra una foto o vídeo aquí</p>
+            {selected && <p data-testid="gallery-selected-file" className="mt-3 text-sm font-semibold">Archivo seleccionado: {selected.name}</p>}
+          </div>
+          {previewUrl && <div className="relative max-w-sm overflow-hidden rounded-xl border"><button type="button" onClick={clearSelection} aria-label="Cancelar selección" className="absolute right-2 top-2 z-10 rounded-full bg-black/60 p-1 text-white"><X className="h-4 w-4" /></button>{selected?.type.startsWith("video/") ? <video src={previewUrl} controls playsInline className="max-h-64 w-full object-contain" /> : <img src={previewUrl} alt="Vista previa" className="max-h-64 w-full object-contain" />}</div>}
+          {selected && <button type="button" onClick={clearSelection} className="text-sm font-semibold text-red-600 underline">Cancelar selección</button>}
           <div className="grid gap-4 sm:grid-cols-2"><label className="text-sm font-semibold">Caption ES<input value={captionEs} onChange={(e) => setCaptionEs(e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--border-soft)] px-3 py-2 font-normal" /></label><label className="text-sm font-semibold">Caption EN<input value={captionEn} onChange={(e) => setCaptionEn(e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--border-soft)] px-3 py-2 font-normal" /></label></div>
           <button type="submit" disabled={!selected || uploading} className="inline-flex items-center gap-2 rounded-full bg-gold px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"><Upload className="h-4 w-4" />{uploading ? "Subiendo…" : "Subir archivo"}</button>
         </form>
