@@ -8,8 +8,9 @@ import ContentPanel from "@/components/admin/ContentPanel";
 import EarningsPanel from "@/components/admin/EarningsPanel";
 import SettingsPanel from "@/components/admin/SettingsPanel";
 import WaitlistPanel from "@/components/admin/WaitlistPanel";
+import GalleryPanel from "@/components/admin/GalleryPanel";
 
-const tabs = [["bookings", "Reservas"], ["catalog", "Catálogo"], ["content", "Contenido"], ["earnings", "Ganancias"], ["waitlist", "Lista de espera"], ["settings", "Ajustes"]];
+const tabs = [["bookings", "Reservas"], ["gallery", "Galería"], ["catalog", "Catálogo"], ["content", "Contenido"], ["earnings", "Ganancias"], ["waitlist", "Lista de espera"], ["settings", "Ajustes"]];
 
 export default function AdminPage() {
   const { user, loginWithEmail, logout } = useAuth();
@@ -46,8 +47,8 @@ export default function AdminPage() {
   return <div className="min-h-screen bg-[var(--page-bg)] p-4 sm:p-8"><div className="mx-auto max-w-7xl">
     <header className="mb-8 flex flex-wrap items-center justify-between gap-4"><div><h1 className="font-display text-3xl font-bold">Panel de administración</h1><p className="text-sm text-[var(--muted-text)]">{user.email}</p></div><button onClick={logout} className="rounded-full border px-4 py-2 text-sm">Salir</button></header>
     <nav className="mb-8 flex flex-wrap gap-2">{tabs.map(([id, label]) => <button key={id} onClick={() => setTab(id)} className={`rounded-full px-4 py-2 text-sm font-semibold ${tab === id ? "bg-gold text-white" : "border"}`}>{label}</button>)}</nav>
-    {tab === "bookings" && <><BookingCalendar byDay={byDay} selectedDate={selectedDate} onSelect={setSelectedDate} currentMonth={month} onMonthChange={(delta) => setMonth((m) => new Date(m.getFullYear(), m.getMonth() + delta, 1))} /><div className="mt-6 space-y-3">{(selectedDate ? byDay[selectedDate] || [] : bookings).map((b) => <BookingRow key={b.id} booking={b} reload={() => api.get("/bookings").then((r) => setBookings(r.data))} />)}</div></>}
-    {tab === "catalog" && <CatalogPanel />}{tab === "content" && <ContentPanel />}{tab === "earnings" && <EarningsPanel />}{tab === "waitlist" && <WaitlistPanel />}{tab === "settings" && <SettingsPanel />}
+    {tab === "bookings" && <><BookingCalendar byDay={byDay} selectedDate={selectedDate} onSelect={setSelectedDate} currentMonth={month} onMonthChange={(delta) => setMonth((m) => new Date(m.getFullYear(), m.getMonth() + delta, 1))} /><div className="mt-6 space-y-3">{(selectedDate ? byDay[selectedDate] || [] : bookings).map((b) => <BookingRow key={b.id || b._id} booking={b} reload={() => api.get("/bookings").then((r) => setBookings(r.data))} />)}</div></>}
+    {tab === "gallery" && <GalleryPanel />}{tab === "catalog" && <CatalogPanel />}{tab === "content" && <ContentPanel />}{tab === "earnings" && <EarningsPanel />}{tab === "waitlist" && <WaitlistPanel />}{tab === "settings" && <SettingsPanel />}
   </div></div>;
 }
 
@@ -76,5 +77,5 @@ function BookingRow({ booking, reload }) {
       setBusy("");
     }
   };
-  return <article className="rounded-2xl border bg-white p-4 flex flex-wrap items-center justify-between gap-3"><div><b>{booking.date} · {booking.time} · {booking.service}</b><p className="text-sm text-[var(--muted-text)]">{booking.name} · {booking.phone} · {booking.payment_status}</p></div><div className="flex gap-2"><button disabled={Boolean(busy) || !bookingId} onClick={() => update("confirmed")} className="rounded-full border border-green-300 px-3 py-1 text-xs disabled:opacity-50">{busy === "confirmed" ? "Guardando…" : "Confirmar"}</button><button disabled={Boolean(busy) || !bookingId || booking.payment_status === "paid"} onClick={markPaid} className="rounded-full border border-gold px-3 py-1 text-xs disabled:opacity-50">{busy === "paid" ? "Guardando…" : "Señal recibida"}</button><button disabled={Boolean(busy) || !bookingId} onClick={() => update("cancelled")} className="rounded-full border border-red-300 px-3 py-1 text-xs disabled:opacity-50">{busy === "cancelled" ? "Guardando…" : "Cancelar"}</button></div></article>;
+  return <article className="rounded-2xl border bg-white p-4 flex flex-wrap items-center justify-between gap-3"><div><b>{booking.date} · {booking.time} · {booking.service}</b><p className="text-sm text-[var(--muted-text)]">{booking.name} · {booking.phone} · estado: {booking.status} · pago: {booking.payment_status}</p></div><div className="flex gap-2"><button disabled={Boolean(busy) || !bookingId} onClick={() => update("confirmed")} className="rounded-full border border-green-300 px-3 py-1 text-xs disabled:opacity-50">{busy === "confirmed" ? "Guardando…" : "Confirmar"}</button><button disabled={Boolean(busy) || !bookingId || booking.payment_status === "paid"} onClick={markPaid} className="rounded-full border border-gold px-3 py-1 text-xs disabled:opacity-50">{busy === "paid" ? "Guardando…" : "Señal recibida"}</button><button disabled={Boolean(busy) || !bookingId} onClick={() => update("cancelled")} className="rounded-full border border-red-300 px-3 py-1 text-xs disabled:opacity-50">{busy === "cancelled" ? "Guardando…" : "Cancelar"}</button></div></article>;
 }
