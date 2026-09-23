@@ -8,6 +8,7 @@ import logging
 import ipaddress
 import asyncio
 import time
+import io
 from html import escape
 from html.parser import HTMLParser
 from urllib.parse import urlparse
@@ -20,6 +21,8 @@ import jwt
 import httpx
 import requests
 import stripe
+import cloudinary
+import cloudinary.uploader
 from bson import ObjectId
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, UploadFile, File, Form
 from fastapi.responses import Response as RawResponse
@@ -1477,6 +1480,15 @@ async def list_media():
 ALLOWED_MEDIA = {"image/jpeg", "image/png", "image/webp", "image/gif",
                  "video/mp4", "video/quicktime", "video/webm"}
 
+CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME", "").strip()
+CLOUDINARY_API_KEY = os.environ.get("CLOUDINARY_API_KEY", "").strip()
+CLOUDINARY_API_SECRET = os.environ.get("CLOUDINARY_API_SECRET", "").strip()
+CLOUDINARY_ENABLED = all((CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET))
+if CLOUDINARY_ENABLED:
+    cloudinary.config(cloud_name=CLOUDINARY_CLOUD_NAME, api_key=CLOUDINARY_API_KEY,
+                      api_secret=CLOUDINARY_API_SECRET, secure=True)
+
+
 @api_router.post("/admin/media")
 async def upload_media(file: UploadFile = File(...), caption_es: str = Form(""),
                        caption_en: str = Form(""), user=Depends(get_admin_user)):
@@ -1486,33 +1498,48 @@ async def upload_media(file: UploadFile = File(...), caption_es: str = Form(""),
     data = await file.read()
     if len(data) > 100 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="Archivo demasiado grande (máx 100MB)")
-    ext = file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else "bin"
-    path = f"{APP_NAME}/gallery/{uuid.uuid4()}.{ext}"
+    if not CLOUDINARY_ENABLED:
+        raise HTTPException(status_code=503, detail="Cloudinary no está configurado en Render.")
+    resource_type = "video" if ct.startswith("video/") else "image"
     try:
-        result = put_object(path, data, ct)
-    except requests.RequestException:
-        logger.exception("Media storage upload failed")
-        raise HTTPException(status_code=503, detail="El almacenamiento de archivos no está disponible. Configura el storage en Render.")
-    except (KeyError, ValueError, TypeError):
-        logger.exception("Media storage returned an invalid response")
-        raise HTTPException(status_code=503, detail="El almacenamiento devolvió una respuesta no válida.")
-    storage_path = result.get("path") if isinstance(result, dict) else None
-    if not storage_path:
-        logger.error("Media storage response did not include a path")
-        raise HTTPException(status_code=503, detail="El almacenamiento no devolvió la URL del archivo.")
-    doc = {"id": str(uuid.uuid4()), "storage_path": storage_path,
+        result = cloudinary.uploader.upload(
+            io.BytesIO(data), resource_type=resource_type,
+            folder=f"{APP_NAME}/gallery", use_filename=False, unique_filename=True,
+        )
+    except Exception:
+        logger.exception("Cloudinary media upload failed")
+        raise HTTPException(status_code=502, detail="Cloudinary no pudo guardar el archivo.")
+    public_id = result.get("public_id") if isinstance(result, dict) else None
+    url = result.get("secure_url") if isinstance(result, dict) else None
+    if not public_id or not url:
+        logger.error("Cloudinary response missing public_id or secure_url")
+        raise HTTPException(status_code=502, detail="Cloudinary devolvió una respuesta incompleta.")
+    doc = {"id": str(uuid.uuid4()), "cloudinary_public_id": public_id,
+           "cloudinary_resource_type": resource_type, "url": url,
            "type": "video" if ct.startswith("video") else "image",
            "caption_es": caption_es, "caption_en": caption_en, "content_type": ct,
            "is_deleted": False, "created_at": datetime.now(timezone.utc).isoformat()}
     await db.media.insert_one(dict(doc))
-    doc["url"] = f"/api/files/{result['path']}"
     return doc
 
 @api_router.delete("/admin/media/{media_id}")
 async def delete_media(media_id: str, user=Depends(get_admin_user)):
-    res = await db.media.update_one({"id": media_id}, {"$set": {"is_deleted": True}})
-    if res.matched_count == 0:
+    record = await db.media.find_one({"id": media_id, "is_deleted": False}, {"_id": 0})
+    if not record:
         raise HTTPException(status_code=404, detail="Archivo no encontrado")
+    if record.get("cloudinary_public_id"):
+        try:
+            result = cloudinary.uploader.destroy(
+                record["cloudinary_public_id"],
+                resource_type=record.get("cloudinary_resource_type", "image"),
+                invalidate=True,
+            )
+        except Exception:
+            logger.exception("Cloudinary media delete failed")
+            raise HTTPException(status_code=502, detail="Cloudinary no pudo eliminar el archivo.")
+        if result.get("result") not in ("ok", "not found"):
+            raise HTTPException(status_code=502, detail="Cloudinary no confirmó la eliminación.")
+    await db.media.update_one({"id": media_id}, {"$set": {"is_deleted": True}})
     return {"ok": True}
 
 @api_router.get("/files/{path:path}")
