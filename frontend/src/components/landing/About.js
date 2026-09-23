@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 
-const ABOUT_IMG = `${process.env.REACT_APP_BACKEND_URL}/api/files/slayed-joana17/gallery/0b1a5f6e-7b8f-4582-b1df-aafd9800b077.jpg`;
+const ABOUT_IMG = "/about-joana-braids.png";
 
 export default function About() {
   const { t } = useLanguage();
