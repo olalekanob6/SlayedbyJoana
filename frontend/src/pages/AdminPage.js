@@ -23,7 +23,7 @@ export default function AdminPage() {
   const [month, setMonth] = useState(new Date());
 
   useEffect(() => {
-    if (user?.role === "admin") api.get("/bookings").then((r) => setBookings(r.data)).catch(() => {});
+    if (user?.role === "admin") api.get("/bookings").then((r) => setBookings(r.data)).catch((error) => toast.error(formatApiError(error)));
   }, [user]);
 
   const submitLogin = async (event) => {
