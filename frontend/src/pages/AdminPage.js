@@ -75,6 +75,7 @@ export default function AdminPage() {
 
 function BookingRow({ booking, reload, onDetails }) {
   const [busy, setBusy] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const bookingId = booking.id || booking._id;
   const update = async (status) => {
     setBusy(status);
@@ -98,5 +99,18 @@ function BookingRow({ booking, reload, onDetails }) {
       setBusy("");
     }
   };
-  return <article className="rounded-2xl border bg-white p-4 flex flex-wrap items-center justify-between gap-3"><div><b>{booking.date} · {booking.time} · {booking.service}</b><p className="text-sm text-[var(--muted-text)]">{booking.name} · {booking.phone} · estado: {booking.status} · pago: {booking.payment_status}</p></div><div className="flex gap-2"><button type="button" onClick={onDetails} className="rounded-full border px-3 py-1 text-xs">Ver detalles</button><button disabled={Boolean(busy) || !bookingId} onClick={() => update("confirmed")} className="rounded-full border border-green-300 px-3 py-1 text-xs disabled:opacity-50">{busy === "confirmed" ? "Guardando…" : "Confirmar"}</button><button disabled={Boolean(busy) || !bookingId || booking.payment_status === "paid"} onClick={markPaid} className="rounded-full border border-gold px-3 py-1 text-xs disabled:opacity-50">{busy === "paid" ? "Guardando…" : "Señal recibida"}</button><button disabled={Boolean(busy) || !bookingId} onClick={() => update("cancelled")} className="rounded-full border border-red-300 px-3 py-1 text-xs disabled:opacity-50">{busy === "cancelled" ? "Guardando…" : "Cancelar"}</button></div></article>;
+  const deleteBooking = async () => {
+    if (!window.confirm("¿Eliminar esta reserva cancelada?\nLa reserva se quitará del listado de citas.")) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/bookings/${encodeURIComponent(bookingId)}`);
+      await reload();
+      toast.success("Reserva eliminada correctamente.");
+    } catch (error) {
+      toast.error(formatApiError(error));
+    } finally {
+      setDeleting(false);
+    }
+  };
+  return <article className="rounded-2xl border bg-white p-4 flex flex-wrap items-center justify-between gap-3"><div><b>{booking.date} · {booking.time} · {booking.service}</b><p className="text-sm text-[var(--muted-text)]">{booking.name} · {booking.phone} · estado: {booking.status} · pago: {booking.payment_status}</p></div><div className="flex gap-2"><button type="button" onClick={onDetails} className="rounded-full border px-3 py-1 text-xs">Ver detalles</button><button disabled={Boolean(busy) || !bookingId} onClick={() => update("confirmed")} className="rounded-full border border-green-300 px-3 py-1 text-xs disabled:opacity-50">{busy === "confirmed" ? "Guardando…" : "Confirmar"}</button><button disabled={Boolean(busy) || !bookingId || booking.payment_status === "paid"} onClick={markPaid} className="rounded-full border border-gold px-3 py-1 text-xs disabled:opacity-50">{busy === "paid" ? "Guardando…" : "Señal recibida"}</button><button disabled={Boolean(busy) || !bookingId} onClick={() => update("cancelled")} className="rounded-full border border-red-300 px-3 py-1 text-xs disabled:opacity-50">{busy === "cancelled" ? "Guardando…" : "Cancelar"}</button>{booking.status === "cancelled" && (<button disabled={Boolean(deleting) || !bookingId} onClick={deleteBooking} className="rounded-full border border-red-500 px-2 py-1 text-xs text-red-600 disabled:opacity-50">{deleting ? "Eliminando…" : "🗑 Eliminar"}</button>)}</div></article>;
 }

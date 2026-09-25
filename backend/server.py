@@ -1090,6 +1090,19 @@ async def update_booking_payment(booking_id: str, payload: BookingPaymentPatch, 
         await record_earning(booking, (booking or {}).get("payment_method", "bizum"))
     return {"ok": True}
 
+@api_router.delete("/bookings/{booking_id}")
+async def delete_cancelled_booking(booking_id: str, user=Depends(get_admin_user)):
+    identity = booking_identity_filter(booking_id)
+    booking = await db.bookings.find_one(identity, {"_id": 0, "id": 1, "status": 1})
+    if not booking:
+        raise HTTPException(status_code=404, detail="Reserva no encontrada")
+    if booking.get("status") != "cancelled":
+        raise HTTPException(status_code=400, detail="Solo se pueden eliminar reservas canceladas")
+    result = await db.bookings.delete_one(identity)
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Reserva no encontrada")
+    return {"ok": True}
+
 @api_router.get("/config")
 async def public_config():
     settings = await get_settings()

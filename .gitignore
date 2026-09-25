@@ -1,0 +1,5 @@
+frontend/build/
+frontend/node_modules/
+backend/__pycache__/
+*.pyc
+AUDITORIA_FINAL.md
