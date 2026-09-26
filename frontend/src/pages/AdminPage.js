@@ -241,13 +241,13 @@ export default function AdminPage() {
                 { label: "Señal pendiente", value: counts.unpaid, icon: CreditCard, cls: "text-amber-600" },
               ].map((card) => (
                 <div key={card.label}
-                  className="rounded-2xl border border-[var(--ds-border-subtle)] bg-white p-4 sm:p-5 shadow-[var(--ds-shadow-sm)] hover:shadow-[var(--ds-shadow-md)] transition-shadow">
+                  className="bg-white px-4 py-4 sm:px-5 sm:py-5">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted">{card.label}</p>
                       <p className={`font-display text-2xl sm:text-3xl font-bold mt-1 ${card.cls}`}>{card.value}</p>
                     </div>
-                    <div className="p-2 rounded-xl bg-cream-soft">
+                    <div className="p-2 rounded-lg bg-cream-soft/50">
                       <card.icon className={`h-5 w-5 ${card.cls}`} />
                     </div>
                   </div>

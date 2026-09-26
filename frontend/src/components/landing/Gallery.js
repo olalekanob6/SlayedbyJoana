@@ -74,8 +74,6 @@ export default function Gallery() {
           /* Elegant masonry-inspired grid — varied spans for visual rhythm */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
             {items.map((item, i) => {
-              const isFeatured = i % 5 === 0;
-              const aspectClass = i % 3 === 0 ? "aspect-[3/4] sm:aspect-[4/5]" : i % 3 === 1 ? "aspect-square" : "aspect-[4/3] sm:aspect-[5/4]";
               return (
                 <motion.button
                   key={item.id}
@@ -84,10 +82,10 @@ export default function Gallery() {
                   initial={{ opacity: 0, scale: 0.96, y: 8 }}
                   whileInView={{ opacity: 1, scale: 1, y: 0 }}
                   viewport={{ once: true, margin: "-30px" }}
-                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  transition={{ duration: 0.35, delay: (i % 6) * 0.05, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  className={`relative overflow-hidden rounded-xl sm:rounded-2xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-muted)] group w-full text-left cursor-pointer ${aspectClass}`}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="relative overflow-hidden rounded-xl sm:rounded-2xl border border-[var(--ds-border-default)] bg-[var(--ds-bg-muted)] group w-full text-left cursor-pointer aspect-[3/4] sm:aspect-[4/5]"
                 >
                   {item.type === "video" ? (
                     <video
@@ -122,24 +120,6 @@ export default function Gallery() {
                       )}
                     </div>
                   </div>
-
-                  {/* Featured badge */}
-                  {isFeatured && (
-                    <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex items-center gap-1.5 bg-[var(--ds-blush-primary)]/90 backdrop-blur-md rounded-full px-2 py-0.5 sm:px-2.5 sm:py-1 border border-[var(--ds-blush-primary)]/30 shadow-lg">
-                      <span className="text-[9px] sm:text-[10px] font-bold text-white uppercase tracking-wider">Destacado</span>
-                    </div>
-                  )}
-
-                  {/* Elegant video indicator — refined ring badge */}
-                  {item.type === "video" && (
-                    <div className="absolute top-2 sm:top-3 right-2 sm:right-3 flex items-center gap-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 px-2 py-0.5 sm:px-2.5 sm:py-1 shadow-lg ring-1 ring-white/10">
-                      <svg className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-[var(--ds-blush-primary)] fill-[var(--ds-blush-primary)]" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="6" fill="currentColor" />
-                        <rect x="10.5" y="5" width="3" height="10" rx="0.5" fill="black" />
-                      </svg>
-                      <span className="text-[9px] sm:text-[10px] text-white font-medium uppercase tracking-widest">Video</span>
-                    </div>
-                  )}
                 </motion.button>
               );
             })}

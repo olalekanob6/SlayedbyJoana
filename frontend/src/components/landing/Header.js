@@ -40,31 +40,34 @@ export default function Header() {
 
   return (
     <>
-      {/* ── Header — reduced height on mobile ── */}
+      {/* ── Header — minimal, sin glassmorphism excesivo ── */}
       <header
         data-testid="header-navigation"
-        className="fixed top-0 inset-x-0 z-50 border-b border-[var(--ds-border-default)] bg-[var(--ds-bg-glass)] backdrop-blur-xl"
+        className="fixed top-0 inset-x-0 z-50 border-b border-[var(--ds-border-default)]/60 bg-[var(--ds-bg-page)]/80 backdrop-blur-md"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 sm:h-14 lg:h-16 flex items-center justify-between gap-2 sm:gap-4">
-          {/* Brand */}
-          <a href="#inicio" data-testid="brand-logo" className="font-display font-extrabold tracking-tight text-base sm:text-lg lg:text-xl leading-none group">
-            <span className="text-[var(--ds-blush-deep)]">SLAYED</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-15 lg:h-16 flex items-center justify-between gap-3 sm:gap-5">
+          {/* Brand — tipografía protagonista */}
+          <a
+            href="#inicio"
+            data-testid="brand-logo"
+            className="font-display font-extrabold tracking-tight text-base sm:text-lg lg:text-xl leading-none text-[var(--ds-blush-deep)] hover:text-[var(--ds-blush-primary)] transition-colors"
+          >
+            SLAYED
             <span className="block text-[9px] sm:text-[10px] lg:text-xs font-body font-medium tracking-[0.25em] text-[var(--ds-text-muted)] uppercase mt-0.5 sm:mt-1">
               by Joana17
             </span>
           </a>
 
-          {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-5 sm:gap-7">
+          {/* Desktop nav — limpio */}
+          <nav className="hidden lg:flex items-center gap-6 sm:gap-8">
             {LINKS.map((l) => (
               <a
                 key={l.id}
                 href={`#${l.id}`}
                 data-testid={l.testId}
-                className="text-xs sm:text-sm font-medium text-[var(--ds-text-secondary)] hover:text-[var(--ds-blush-deep)] transition-colors duration-300 relative group"
+                className="text-xs sm:text-sm font-medium text-[var(--ds-text-secondary)] hover:text-[var(--ds-blush-primary)] transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-px after:bg-[var(--ds-blush-primary)]/50 after:scale-x-0 after:group-hover:after:scale-x-100 after:transition-transform after:duration-300"
               >
                 {t(l.key)}
-                <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-[var(--ds-blush-primary)]/40 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
               </a>
             ))}
           </nav>
@@ -72,36 +75,32 @@ export default function Header() {
           {/* Right controls */}
           <div className="flex items-center gap-1 sm:gap-2 lg:gap-3">
             {/* Language toggle */}
-            <div className="hidden sm:flex items-center rounded-full border border-[var(--ds-border-default)] p-0.5 text-[10px] font-semibold">
+            <div className="hidden sm:flex items-center rounded-full border border-[var(--ds-border-default)]/60 p-0.5 text-[10px] font-semibold bg-[var(--ds-bg-elevated)]">
               <button
                 data-testid="language-toggle-es"
                 onClick={() => setLang("es")}
-                className={`px-2.5 py-1 rounded-full transition-colors duration-300 ${
-                  lang === "es" ? "bg-[var(--ds-blush-primary)] text-white" : "text-[var(--ds-text-muted)] hover:text-[var(--ds-text-primary)]"
-                }`}
+                className={`px-2.5 py-1 rounded-full transition-colors duration-200 ${lang === "es" ? "bg-[var(--ds-blush-primary)] text-white" : "text-[var(--ds-text-muted)] hover:text-[var(--ds-text-primary)]"}`}
               >
                 ES
               </button>
               <button
                 data-testid="language-toggle-en"
                 onClick={() => setLang("en")}
-                className={`px-2.5 py-1 rounded-full transition-colors duration-300 ${
-                  lang === "en" ? "bg-[var(--ds-blush-primary)] text-white" : "text-[var(--ds-text-muted)] hover:text-[var(--ds-text-primary)]"
-                }`}
+                className={`px-2.5 py-1 rounded-full transition-colors duration-200 ${lang === "en" ? "bg-[var(--ds-blush-primary)] text-white" : "text-[var(--ds-text-muted)] hover:text-[var(--ds-text-primary)]"}`}
               >
                 EN
               </button>
             </div>
 
-            {/* Guest booking CTA — always visible */}
+            {/* Guest: booking CTA */}
             {!user && (
               <a
                 href="#reservar"
-                data-testid="header-booking-cta-mobile"
-                className="lg:hidden inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-[var(--ds-blush-primary)] px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold text-white hover:bg-[var(--ds-blush-hover)] transition-all duration-300 shadow-sm"
+                data-testid="header-booking-cta"
+                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-[var(--ds-blush-primary)] px-3 sm:px-5 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold text-white hover:bg-[var(--ds-blush-hover)] hover:-translate-y-0.5 transition-all duration-200 shadow-md shadow-[var(--ds-blush-primary)]/20 lg:px-4 lg:py-2"
               >
                 <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                {t("nav.book")}
+                <span className="hidden xs:inline">{t("nav.book")}</span>
               </a>
             )}
 
@@ -119,43 +118,22 @@ export default function Header() {
                   <a
                     href="/admin"
                     data-testid="header-admin-link"
-                    title="Panel"
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-full border border-[var(--ds-border-default)] flex items-center justify-center text-[var(--ds-text-muted)] hover:text-[var(--ds-blush-deep)] hover:border-[var(--ds-blush-soft)] transition-colors"
+                    title={t("admin.title")}
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-full border border-[var(--ds-border-default)]/60 flex items-center justify-center text-[var(--ds-text-muted)] hover:text-[var(--ds-blush-primary)] hover:border-[var(--ds-blush-soft)] transition-colors"
                   >
-                    <LayoutDashboard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="text-[var(--ds-text-primary)] text-[10px] font-bold tracking-wider">A</span>
                   </a>
                 )}
                 <button
                   data-testid="header-logout-button"
                   onClick={logout}
                   title={t("auth.logout")}
-                  className="h-7 w-7 sm:h-8 sm:w-8 rounded-full border border-[var(--ds-border-default)] flex items-center justify-center text-[var(--ds-text-muted)] hover:text-red-400 hover:border-red-400/50 transition-colors"
+                  className="h-7 w-7 sm:h-8 sm:w-8 rounded-full border border-[var(--ds-border-default)]/60 flex items-center justify-center text-[var(--ds-text-muted)] hover:text-red-400 hover:border-red-400/50 transition-colors"
                 >
                   <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </button>
               </div>
             )}
-
-            {/* Guest login — desktop */}
-            {!user && (
-              <button
-                data-testid="header-login-button"
-                onClick={() => { setShowLogin(true); setLoginError(""); }}
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-[var(--ds-border-default)] px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-semibold text-[var(--ds-text-primary)] hover:border-[var(--ds-blush-soft)] hover:text-[var(--ds-blush-deep)] transition-colors"
-              >
-                {t("auth.login")}
-              </button>
-            )}
-
-            {/* Always-visible booking CTA — desktop */}
-            <a
-              href="#reservar"
-              data-testid="header-booking-cta-button"
-              className="hidden sm:inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-[var(--ds-blush-primary)] px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-white hover:bg-[var(--ds-blush-hover)] hover:-translate-y-0.5 transition-all duration-300 shadow-md shadow-[var(--ds-blush-primary)]/20"
-            >
-              <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              {t("nav.book")}
-            </a>
 
             {/* Mobile menu toggle */}
             <button
@@ -169,12 +147,12 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile menu — more polished */}
+        {/* Mobile menu */}
         <AnimatePresence>
           {open && (
             <motion.div
               data-testid="mobile-menu"
-              className="lg:hidden border-t border-[var(--ds-border-default)] bg-[var(--ds-bg-glass)]/95 backdrop-blur-xl"
+              className="lg:hidden border-t border-[var(--ds-border-default)]/60 bg-[var(--ds-bg-page)]/95 backdrop-blur-md"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
@@ -186,41 +164,53 @@ export default function Header() {
                     key={l.id}
                     href={`#${l.id}`}
                     onClick={closeMobile}
-                    className="text-sm sm:text-base text-[var(--ds-text-primary)] font-medium py-2.5 sm:py-3 border-b border-[var(--ds-border-default)]/50 last:border-0 hover:text-[var(--ds-blush-deep)] transition-colors"
+                    className="text-sm sm:text-base text-[var(--ds-text-primary)] font-medium py-2.5 sm:py-3 border-b border-[var(--ds-border-default)]/40 last:border-0 hover:text-[var(--ds-blush-primary)] transition-colors"
                   >
                     {t(l.key)}
                   </a>
                 ))}
                 {user ? (
-                  <button
-                    onClick={() => { logout(); closeMobile(); }}
-                    className="text-sm sm:text-base text-[var(--ds-text-muted)] py-2.5 text-left hover:text-[var(--ds-text-secondary)] transition-colors"
-                  >
-                    {t("auth.logout")} ({user.name})
-                  </button>
+                  <>
+                    <button
+                      onClick={() => { logout(); closeMobile(); }}
+                      className="text-sm sm:text-base text-[var(--ds-text-muted)] py-2.5 text-left hover:text-[var(--ds-text-primary)] transition-colors"
+                    >
+                      {t("auth.logout")} ({user.name})
+                    </button>
+                    {user.role === "admin" && (
+                      <a
+                        href="/admin"
+                        onClick={closeMobile}
+                        className="text-sm sm:text-base font-semibold text-[var(--ds-blush-deep)] py-2.5 text-left hover:underline transition-colors"
+                      >
+                        {t("admin.title")}
+                      </a>
+                    )}
+                  </>
                 ) : (
-                  <button
-                    onClick={() => { setShowLogin(true); closeMobile(); setLoginError(""); }}
-                    className="text-sm sm:text-base font-semibold text-[var(--ds-blush-deep)] py-2.5 text-left hover:underline transition-colors"
-                  >
-                    {t("auth.login")}
-                  </button>
+                  <>
+                    <a
+                      href="#reservar"
+                      onClick={closeMobile}
+                      className="text-sm sm:text-base font-semibold text-[var(--ds-blush-primary)] py-2.5 text-left hover:underline transition-colors"
+                    >
+                      {t("nav.book")}
+                    </a>
+                    <button
+                      onClick={() => { setShowLogin(true); closeMobile(); setLoginError(""); }}
+                      className="text-sm sm:text-base text-[var(--ds-text-muted)] py-2.5 text-left hover:text-[var(--ds-text-primary)] transition-colors"
+                    >
+                      {t("auth.login")}
+                    </button>
+                  </>
                 )}
-                <a
-                  href="#reservar"
-                  onClick={closeMobile}
-                  className="mt-2 sm:mt-3 inline-flex items-center justify-center gap-2 rounded-full bg-[var(--ds-blush-primary)] px-4 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-white shadow-md"
-                >
-                  <Calendar className="h-4 w-4" />
-                  {t("nav.book")}
-                </a>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </header>
 
-      {/* ── Login modal — refined design ── */}
+      {/* ── Login modal — refined ── */}
       {showLogin && (
         <div className="fixed inset-0 z-[60] grid place-items-center bg-black/40 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-label={t("auth.login")}>
           <motion.div
@@ -229,7 +219,6 @@ export default function Header() {
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
             className="w-full max-w-sm rounded-2xl border border-[var(--ds-border-default)] bg-white p-6 sm:p-8 shadow-2xl shadow-black/10"
           >
-            {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-full bg-[var(--ds-blush-tint)] flex items-center justify-center">
@@ -251,9 +240,7 @@ export default function Header() {
 
             <form onSubmit={submitLogin} className="space-y-4 sm:space-y-5">
               <div>
-                <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-[var(--ds-text-muted)]">
-                  Correo electrónico
-                </label>
+                <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-[var(--ds-text-muted)]">Correo electrónico</label>
                 <input
                   type="email"
                   value={email}
@@ -264,9 +251,7 @@ export default function Header() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-[var(--ds-text-muted)]">
-                  Contraseña
-                </label>
+                <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-[var(--ds-text-muted)]">Contraseña</label>
                 <input
                   type="password"
                   value={password}
