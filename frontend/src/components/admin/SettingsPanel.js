@@ -161,17 +161,30 @@ export default function SettingsPanel() {
     }
   };
 
+  const SaveButton = ({ onClick, disabled, label }) => (
+    <button
+      data-testid={`save-btn-${label}`}
+      onClick={onClick}
+      disabled={disabled}
+      className="inline-flex items-center justify-center gap-2 rounded-full bg-gold px-5 py-3 text-sm font-bold text-white hover:bg-[var(--accent-hover)] disabled:opacity-60 transition-colors min-h-[44px] w-full sm:w-auto sm:px-6"
+    >
+      <Save className="h-4 w-4 shrink-0" />
+      {disabled ? `Guardando...` : label}
+    </button>
+  );
+
   return (
-    <div className="space-y-8 max-w-4xl">
-      <div className="rounded-2xl border border-[var(--border-soft)] bg-white p-6 space-y-5">
-        <p className="font-display font-bold text-lg flex items-center gap-2">
+    <div className="space-y-6 sm:space-y-8 max-w-full overflow-x-hidden">
+      {/* Avisos y pagos */}
+      <div className="rounded-2xl border border-[var(--border-soft)] bg-white p-4 sm:p-6 space-y-4 sm:space-y-5">
+        <p className="font-display font-bold text-lg sm:text-xl flex items-center gap-2">
           <Bell className="h-5 w-5 text-gold" /> Avisos y pagos
         </p>
         <div>
           <Label className="text-xs uppercase tracking-wider text-[var(--muted-text)]">Email que recibe las citas</Label>
           <Input data-testid="settings-notify-email" type="email" value={settings.owner_notify_email}
                  onChange={(e) => setSettings({ ...settings, owner_notify_email: e.target.value })}
-                 className="mt-2 bg-[var(--surface-soft)] border-[var(--border-soft)] h-11" />
+                 className="mt-2 w-full bg-[var(--surface-soft)] border-[var(--border-soft)] h-[44px] sm:h-11" />
           <p className="text-xs text-[var(--muted-text)] mt-1">A este email llega el aviso cada vez que alguien reserva.</p>
         </div>
         <div>
@@ -180,7 +193,7 @@ export default function SettingsPanel() {
           </Label>
           <Input data-testid="settings-bizum" value={settings.bizum_number}
                  onChange={(e) => setSettings({ ...settings, bizum_number: e.target.value })}
-                 className="mt-2 bg-[var(--surface-soft)] border-[var(--border-soft)] h-11" />
+                 className="mt-2 w-full bg-[var(--surface-soft)] border-[var(--border-soft)] h-[44px] sm:h-11" />
           <p className="text-xs text-[var(--muted-text)] mt-1">Se muestra a la clienta cuando elige pagar por Bizum.</p>
         </div>
         <div>
@@ -189,7 +202,7 @@ export default function SettingsPanel() {
           </Label>
           <Input data-testid="settings-instagram" value={settings.instagram}
                  onChange={(e) => setSettings({ ...settings, instagram: e.target.value })}
-                 className="mt-2 bg-[var(--surface-soft)] border-[var(--border-soft)] h-11" />
+                 className="mt-2 w-full bg-[var(--surface-soft)] border-[var(--border-soft)] h-[44px] sm:h-11" />
         </div>
         <div>
           <Label className="text-xs uppercase tracking-wider text-[var(--muted-text)] flex items-center gap-1.5">
@@ -197,20 +210,16 @@ export default function SettingsPanel() {
           </Label>
           <Input data-testid="settings-studio-address" value={settings.studio_address}
                  onChange={(e) => setSettings({ ...settings, studio_address: e.target.value })}
-                 className="mt-2 bg-[var(--surface-soft)] border-[var(--border-soft)] h-11" />
+                 className="mt-2 w-full bg-[var(--surface-soft)] border-[var(--border-soft)] h-[44px] sm:h-11" />
           <p className="text-xs text-[var(--muted-text)] mt-1">Se muestra en el pie de página y actualiza el mapa de Google.</p>
         </div>
-        <button data-testid="settings-save-button" onClick={saveSettings} disabled={saving}
-                className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-bold text-white hover:bg-[var(--accent-hover)] disabled:opacity-60 transition-colors">
-          <Save className="h-4 w-4" />
-          {saving ? "Guardando..." : "Guardar ajustes"}
-        </button>
+        <SaveButton onClick={saveSettings} disabled={saving} label="Guardar ajustes" />
       </div>
 
-
-      <div data-testid="theme-settings" className="rounded-2xl border border-[var(--border-soft)] bg-white p-6 space-y-5">
+      {/* Tema de colores */}
+      <div data-testid="theme-settings" className="rounded-2xl border border-[var(--border-soft)] bg-white p-4 sm:p-6 space-y-4">
         <div>
-          <p className="font-display font-bold text-lg flex items-center gap-2">
+          <p className="font-display font-bold text-lg sm:text-xl flex items-center gap-2">
             <Palette className="h-5 w-5 text-gold" /> Color de la página
           </p>
           <p className="text-sm text-[var(--muted-text)] mt-1">
@@ -229,7 +238,7 @@ export default function SettingsPanel() {
             <div key={key} className="rounded-xl border border-[var(--border-soft)] bg-[var(--surface-soft)] p-3">
               <Label className="text-xs font-semibold">{label}</Label>
               <div className="mt-2 flex items-center gap-3">
-                <Input
+                <input
                   data-testid={`theme-color-${key}`}
                   type="color"
                   value={settings.theme?.[key] || DEFAULT_THEME[key]}
@@ -237,7 +246,7 @@ export default function SettingsPanel() {
                     ...settings,
                     theme: { ...DEFAULT_THEME, ...(settings.theme || {}), [key]: e.target.value.toUpperCase() },
                   })}
-                  className="h-11 w-16 cursor-pointer bg-white border-[var(--border-soft)] p-1"
+                  className="h-11 w-16 cursor-pointer bg-white border-[var(--border-soft)] p-1 min-h-[44px] min-w-[44px]"
                 />
                 <span data-testid={`theme-color-value-${key}`} className="text-xs font-semibold text-[var(--muted-text)]">
                   {settings.theme?.[key] || DEFAULT_THEME[key]}
@@ -246,16 +255,13 @@ export default function SettingsPanel() {
             </div>
           ))}
         </div>
-        <button data-testid="theme-save-button" onClick={saveSettings} disabled={saving}
-                className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-bold text-white hover:bg-[var(--accent-hover)] disabled:opacity-60 transition-colors">
-          <Save className="h-4 w-4" />
-          {saving ? "Guardando..." : "Guardar colores"}
-        </button>
+        <SaveButton onClick={saveSettings} disabled={saving} label="Guardar colores" />
       </div>
 
-      <div data-testid="schedule-settings" className="rounded-2xl border border-[var(--border-soft)] bg-white p-6 space-y-5">
+      {/* Horarios */}
+      <div data-testid="schedule-settings" className="rounded-2xl border border-[var(--border-soft)] bg-white p-4 sm:p-6 space-y-4 sm:space-y-5">
         <div>
-          <p className="font-display font-bold text-lg flex items-center gap-2">
+          <p className="font-display font-bold text-lg sm:text-xl flex items-center gap-2">
             <Clock className="h-5 w-5 text-gold" /> Horarios y límite de reservas
           </p>
           <p className="text-sm text-[var(--muted-text)] mt-1">
@@ -269,94 +275,139 @@ export default function SettingsPanel() {
             <Input data-testid="settings-daily-capacity" type="number" min="1" max="20"
                    value={settings.daily_capacity}
                    onChange={(e) => setSettings({ ...settings, daily_capacity: Number(e.target.value) })}
-                   className="mt-2 bg-[var(--surface-soft)] border-[var(--border-soft)] h-11" />
+                   className="mt-2 w-full bg-[var(--surface-soft)] border-[var(--border-soft)] h-[44px] sm:h-11" />
           </div>
           <div>
             <Label className="text-xs uppercase tracking-wider text-[var(--muted-text)]">Intervalo entre huecos (minutos)</Label>
             <Input data-testid="settings-slot-interval" type="number" min="30" max="240" step="15"
                    value={settings.slot_interval_minutes}
                    onChange={(e) => setSettings({ ...settings, slot_interval_minutes: Number(e.target.value) })}
-                   className="mt-2 bg-[var(--surface-soft)] border-[var(--border-soft)] h-11" />
+                   className="mt-2 w-full bg-[var(--surface-soft)] border-[var(--border-soft)] h-[44px] sm:h-11" />
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0">
           {DAY_ROWS.map(({ id, label }) => {
             const day = settings.schedule[id];
             return (
               <div key={id} data-testid={`schedule-day-${id}`}
-                   className="grid grid-cols-1 sm:grid-cols-[130px_110px_1fr_1fr] gap-3 items-center rounded-xl border border-[var(--border-soft)] bg-[var(--surface-soft)] p-3">
-                <p className="text-sm font-semibold">{label}</p>
+                   className="flex flex-col gap-3 rounded-xl border border-[var(--border-soft)] bg-[var(--surface-soft)] p-3 sm:p-4 sm:grid sm:grid-cols-[auto_1fr_1fr_1fr] sm:items-center sm:gap-3">
+                <p className="text-sm font-semibold sm:shrink-0">{label}</p>
                 <button type="button" data-testid={`schedule-open-${id}`}
                         onClick={() => updateDay(id, "open", !day.open)}
-                        className={`rounded-full border px-4 py-2 text-xs font-bold transition-colors ${
+                        className={`rounded-full border px-4 py-2 text-xs font-bold transition-colors min-h-[44px] w-full sm:w-auto ${
                           day.open
                             ? "border-green-400/40 text-green-500 hover:bg-green-400 hover:text-white"
                             : "border-[rgba(var(--accent-rgb),0.45)] text-[var(--muted-text)] hover:bg-gold hover:text-white"
                         }`}>
                   {day.open ? "Abierto" : "Cerrado"}
                 </button>
-                <div>
-                  <Label className="text-[10px] uppercase tracking-wider text-[var(--muted-text)]">Desde</Label>
+                <div className="w-full">
+                  <Label className="text-[10px] uppercase tracking-wider text-[var(--muted-text)] sm:text-xs">Desde</Label>
                   <Input data-testid={`schedule-start-${id}`} type="time" value={day.start} disabled={!day.open}
                          onChange={(e) => updateDay(id, "start", e.target.value)}
-                         className="mt-1 bg-white border-[var(--border-soft)] h-10 disabled:opacity-50" />
+                         className="mt-1 w-full bg-white border-[var(--border-soft)] h-[44px] sm:h-10 disabled:opacity-50" />
                 </div>
-                <div>
-                  <Label className="text-[10px] uppercase tracking-wider text-[var(--muted-text)]">Hasta</Label>
+                <div className="w-full sm:col-start-4">
+                  <Label className="text-[10px] uppercase tracking-wider text-[var(--muted-text)] sm:text-xs">Hasta</Label>
                   <Input data-testid={`schedule-end-${id}`} type="time" value={day.end} disabled={!day.open}
                          onChange={(e) => updateDay(id, "end", e.target.value)}
-                         className="mt-1 bg-white border-[var(--border-soft)] h-10 disabled:opacity-50" />
+                         className="mt-1 w-full bg-white border-[var(--border-soft)] h-[44px] sm:h-10 disabled:opacity-50" />
                 </div>
               </div>
             );
           })}
         </div>
 
-        <button data-testid="schedule-save-button" onClick={saveSettings} disabled={saving}
-                className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-bold text-white hover:bg-[var(--accent-hover)] disabled:opacity-60 transition-colors">
-          <Save className="h-4 w-4" />
-          {saving ? "Guardando..." : "Guardar horarios"}
-        </button>
+        <SaveButton onClick={saveSettings} disabled={saving} label="Guardar horarios" />
       </div>
 
-      <div data-testid="date-exception-settings" className="rounded-2xl border border-[var(--border-soft)] bg-white p-6 space-y-5">
+      {/* Excepciones de fecha */}
+      <div data-testid="date-exception-settings" className="rounded-2xl border border-[var(--border-soft)] bg-white p-4 sm:p-6 space-y-4 sm:space-y-5">
         <div>
-          <p className="font-display font-bold text-lg flex items-center gap-2"><CalendarDays className="h-5 w-5 text-gold" /> Disponibilidad por fecha</p>
-          <p className="text-sm text-[var(--muted-text)] mt-1">Abre, cierra o cambia el horario de una fecha concreta. No modifica ningún lunes, martes ni otra semana.</p>
+          <p className="font-display font-bold text-lg sm:text-xl flex items-center gap-2">
+            <CalendarDays className="h-5 w-5 text-gold" /> Disponibilidad por fecha
+          </p>
+          <p className="text-sm text-[var(--muted-text)] mt-1">
+            Abre, cierra o cambia el horario de una fecha concreta. No modifica ningún lunes, martes ni otra semana.
+          </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-[1.2fr_1fr_1fr_1fr_auto] gap-3 items-end">
-          <div><Label className="text-xs uppercase tracking-wider text-[var(--muted-text)]">Fecha</Label><Input data-testid="date-exception-date" type="date" value={exceptionDraft.date} onChange={(e) => setExceptionDraft({ ...exceptionDraft, date: e.target.value })} className="mt-2 bg-[var(--surface-soft)] border-[var(--border-soft)] h-11" /></div>
-          <div><Label className="text-xs uppercase tracking-wider text-[var(--muted-text)]">Estado</Label><button type="button" data-testid="date-exception-open" onClick={() => setExceptionDraft({ ...exceptionDraft, open: !exceptionDraft.open })} className={`mt-2 w-full h-11 rounded-md border text-sm font-semibold ${exceptionDraft.open ? "border-green-400/40 text-green-600" : "border-red-400/40 text-red-500"}`}>{exceptionDraft.open ? "Abierto" : "Cerrado"}</button></div>
-          <div><Label className="text-xs uppercase tracking-wider text-[var(--muted-text)]">Desde</Label><Input data-testid="date-exception-start" type="time" disabled={!exceptionDraft.open} value={exceptionDraft.start} onChange={(e) => setExceptionDraft({ ...exceptionDraft, start: e.target.value })} className="mt-2 bg-[var(--surface-soft)] border-[var(--border-soft)] h-11 disabled:opacity-50" /></div>
-          <div><Label className="text-xs uppercase tracking-wider text-[var(--muted-text)]">Hasta</Label><Input data-testid="date-exception-end" type="time" disabled={!exceptionDraft.open} value={exceptionDraft.end} onChange={(e) => setExceptionDraft({ ...exceptionDraft, end: e.target.value })} className="mt-2 bg-[var(--surface-soft)] border-[var(--border-soft)] h-11 disabled:opacity-50" /></div>
-          <button type="button" data-testid="date-exception-add" onClick={addDateOverride} className="h-11 rounded-full bg-gold px-5 text-sm font-bold text-white">Añadir</button>
+
+        <div className="flex flex-col gap-3 sm:grid sm:grid-cols-[1.2fr_1fr_1fr_1fr_auto] sm:gap-3 sm:items-end">
+          <div className="flex flex-col gap-1.5 sm:col-span-1 sm:items-start">
+            <Label className="text-xs uppercase tracking-wider text-[var(--muted-text)]">Fecha</Label>
+            <Input data-testid="date-exception-date" type="date" value={exceptionDraft.date}
+                   onChange={(e) => setExceptionDraft({ ...exceptionDraft, date: e.target.value })}
+                   className="mt-0 w-full bg-[var(--surface-soft)] border-[var(--border-soft)] h-[44px] sm:h-11" />
+          </div>
+          <div className="flex flex-col gap-1.5 sm:col-span-1 sm:items-start">
+            <Label className="text-xs uppercase tracking-wider text-[var(--muted-text)]">Estado</Label>
+            <button type="button" data-testid="date-exception-open"
+                    onClick={() => setExceptionDraft({ ...exceptionDraft, open: !exceptionDraft.open })}
+                    className={`w-full h-[44px] sm:h-11 rounded-md border text-sm font-semibold min-h-[44px] ${
+                      exceptionDraft.open ? "border-green-400/40 text-green-600" : "border-red-400/40 text-red-500"
+                    }`}>
+              {exceptionDraft.open ? "Abierto" : "Cerrado"}
+            </button>
+          </div>
+          <div className="flex flex-col gap-1.5 sm:col-span-1 sm:items-start">
+            <Label className="text-xs uppercase tracking-wider text-[var(--muted-text)]">Desde</Label>
+            <Input data-testid="date-exception-start" type="time" disabled={!exceptionDraft.open}
+                   value={exceptionDraft.start}
+                   onChange={(e) => setExceptionDraft({ ...exceptionDraft, start: e.target.value })}
+                   className="mt-0 w-full bg-[var(--surface-soft)] border-[var(--border-soft)] h-[44px] sm:h-11 disabled:opacity-50" />
+          </div>
+          <div className="flex flex-col gap-1.5 sm:col-span-1 sm:items-start">
+            <Label className="text-xs uppercase tracking-wider text-[var(--muted-text)]">Hasta</Label>
+            <Input data-testid="date-exception-end" type="time" disabled={!exceptionDraft.open}
+                   value={exceptionDraft.end}
+                   onChange={(e) => setExceptionDraft({ ...exceptionDraft, end: e.target.value })}
+                   className="mt-0 w-full bg-[var(--surface-soft)] border-[var(--border-soft)] h-[44px] sm:h-11 disabled:opacity-50" />
+          </div>
+          <button type="button" data-testid="date-exception-add" onClick={addDateOverride}
+                  className="h-[44px] sm:h-11 rounded-full bg-gold px-5 text-sm font-bold text-white min-h-[44px] w-full sm:w-auto self-start sm:self-auto">
+            Añadir
+          </button>
         </div>
+
         <div className="space-y-2">
           {Object.entries(settings.date_overrides || {}).sort(([a], [b]) => a.localeCompare(b)).map(([date, override]) => (
-            <div key={date} data-testid={`date-exception-${date}`} className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border-soft)] bg-[var(--surface-soft)] px-4 py-3">
-              <span className="text-sm font-semibold">{date}</span><span className={override.open ? "text-green-600 text-sm" : "text-red-500 text-sm"}>{override.open ? `Abierto · ${override.start}–${override.end}` : "Cerrado"}</span>
-              <button type="button" aria-label={`Eliminar excepción ${date}`} onClick={() => removeDateOverride(date)} className="text-red-400 hover:text-red-500"><X className="h-4 w-4" /></button>
+            <div key={date} data-testid={`date-exception-${date}`}
+                 className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 rounded-xl border border-[var(--border-soft)] bg-[var(--surface-soft)] px-4 py-3">
+              <span className="text-sm font-semibold">{date}</span>
+              <span className={override.open ? "text-green-600 text-sm" : "text-red-500 text-sm"}>
+                {override.open ? `Abierto · ${override.start}–${override.end}` : "Cerrado"}
+              </span>
+              <button type="button" aria-label={`Eliminar excepción ${date}`}
+                      onClick={() => removeDateOverride(date)}
+                      className="inline-flex items-center justify-center gap-1 self-start sm:self-auto text-red-400 hover:text-red-500 min-h-[44px] min-w-[44px] rounded-lg p-2">
+                <X className="h-4 w-4" />
+                <span className="sr-only sm:hidden">Eliminar</span>
+              </button>
             </div>
           ))}
-          {!Object.keys(settings.date_overrides || {}).length && <p className="text-sm text-[var(--muted-text)]">No hay excepciones configuradas.</p>}
+          {!Object.keys(settings.date_overrides || {}).length && (
+            <p className="text-sm text-[var(--muted-text)]">No hay excepciones configuradas.</p>
+          )}
         </div>
-        <button data-testid="date-exception-save-button" onClick={saveSettings} disabled={saving} className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-bold text-white hover:bg-[var(--accent-hover)] disabled:opacity-60 transition-colors"><Save className="h-4 w-4" />{saving ? "Guardando..." : "Guardar excepciones"}</button>
+
+        <SaveButton onClick={saveSettings} disabled={saving} label="Guardar excepciones" />
       </div>
 
-      <div data-testid="duration-settings" className="rounded-2xl border border-[var(--border-soft)] bg-white p-6 space-y-5">
+      {/* Duraciones */}
+      <div data-testid="duration-settings" className="rounded-2xl border border-[var(--border-soft)] bg-white p-4 sm:p-6 space-y-4 sm:space-y-5">
         <div>
-          <p className="font-display font-bold text-lg flex items-center gap-2">
+          <p className="font-display font-bold text-lg sm:text-xl flex items-center gap-2">
             <Scissors className="h-5 w-5 text-gold" /> Duración real de servicios
           </p>
           <p className="text-sm text-[var(--muted-text)] mt-1">
             Estos minutos bloquean los huecos siguientes y evitan que una cita se solape con otra.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0">
           {ALL_SERVICE_OPTIONS.map((option) => (
-            <div key={option.id} className="rounded-xl border border-[var(--border-soft)] bg-[var(--surface-soft)] p-3">
-              <Label className="text-xs font-semibold text-[var(--foreground-strong)]">
+            <div key={option.id} className="rounded-xl border border-[var(--border-soft)] bg-[var(--surface-soft)] p-3 sm:p-4 min-w-0 sm:min-w-[200px]">
+              <Label className="text-xs font-semibold text-[var(--foreground-strong)] truncate">
                 {option.name} <span className="text-[var(--muted-text)] font-normal">· {CATEGORY_LABELS[option.category]}</span>
               </Label>
               <div className="mt-2 flex items-center gap-2">
@@ -368,35 +419,34 @@ export default function SettingsPanel() {
                   step="5"
                   value={durationFor(option)}
                   onChange={(e) => updateDuration(option.key, e.target.value)}
-                  className="bg-white border-[var(--border-soft)] h-10"
+                  className="flex-1 min-w-0 bg-white border-[var(--border-soft)] h-[44px] sm:h-10"
                 />
                 <span className="text-xs text-[var(--muted-text)] shrink-0">min</span>
               </div>
             </div>
           ))}
         </div>
-        <button data-testid="duration-save-button" onClick={saveSettings} disabled={saving}
-                className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-bold text-white hover:bg-[var(--accent-hover)] disabled:opacity-60 transition-colors">
-          <Save className="h-4 w-4" />
-          {saving ? "Guardando..." : "Guardar duraciones"}
-        </button>
+        <SaveButton onClick={saveSettings} disabled={saving} label="Guardar duraciones" />
       </div>
 
-      <div className="rounded-2xl border border-[var(--border-soft)] bg-white p-6 space-y-5">
-        <p className="font-display font-bold text-lg flex items-center gap-2">
+      {/* Administradoras */}
+      <div className="rounded-2xl border border-[var(--border-soft)] bg-white p-4 sm:p-6 space-y-4 sm:space-y-5">
+        <p className="font-display font-bold text-lg sm:text-xl flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-gold" /> Administradoras del panel
         </p>
         <div className="space-y-2">
           {admins.map((a) => (
             <div key={a.email} data-testid={`admin-row-${a.email}`}
-                 className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border-soft)] bg-[var(--surface-soft)] px-4 py-3">
-              <div className="min-w-0">
+                 className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-[var(--border-soft)] bg-[var(--surface-soft)] px-4 py-3 sm:px-5">
+              <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold truncate">{a.name || "Admin"}</p>
                 <p className="text-xs text-[var(--muted-text)] truncate">{a.email}</p>
               </div>
-              <button data-testid={`admin-remove-${a.email}`} onClick={() => removeAdmin(a.email)}
-                      className="text-red-400 hover:text-red-500 shrink-0">
+              <button data-testid={`admin-remove-${a.email}`}
+                      onClick={() => removeAdmin(a.email)}
+                      className="inline-flex items-center justify-center gap-1 self-start sm:self-auto min-h-[44px] min-w-[44px] rounded-lg p-2 text-red-400 hover:text-red-500 shrink-0">
                 <Trash2 className="h-4 w-4" />
+                <span className="sr-only sm:hidden">Eliminar</span>
               </button>
             </div>
           ))}
@@ -406,17 +456,17 @@ export default function SettingsPanel() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Input data-testid="new-admin-name" placeholder="Nombre" value={newAdmin.name}
                    onChange={(e) => setNewAdmin({ ...newAdmin, name: e.target.value })}
-                   className="bg-[var(--surface-soft)] border-[var(--border-soft)] h-11" />
+                   className="w-full bg-[var(--surface-soft)] border-[var(--border-soft)] h-[44px] sm:h-11" />
             <Input data-testid="new-admin-email" type="email" required placeholder="Email" value={newAdmin.email}
                    onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })}
-                   className="bg-[var(--surface-soft)] border-[var(--border-soft)] h-11" />
+                   className="w-full bg-[var(--surface-soft)] border-[var(--border-soft)] h-[44px] sm:h-11" />
             <Input data-testid="new-admin-password" type="text" required placeholder="Contraseña (mín. 6)" value={newAdmin.password}
                    onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
-                   className="bg-[var(--surface-soft)] border-[var(--border-soft)] h-11" />
+                   className="w-full bg-[var(--surface-soft)] border-[var(--border-soft)] h-[44px] sm:h-11" />
           </div>
           <button data-testid="add-admin-button" type="submit"
-                  className="inline-flex items-center gap-2 rounded-full border border-gold/50 px-6 py-3 text-sm font-bold text-gold hover:bg-gold hover:text-white transition-colors">
-            <UserPlus className="h-4 w-4" /> Añadir
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-gold/50 px-5 py-3 text-sm font-bold text-gold hover:bg-gold hover:text-white transition-colors min-h-[44px] w-full sm:w-auto sm:px-6">
+            <UserPlus className="h-4 w-4 shrink-0" /> Añadir
           </button>
         </form>
       </div>

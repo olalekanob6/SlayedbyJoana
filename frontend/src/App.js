@@ -4,6 +4,7 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { SiteConfigProvider } from "@/context/SiteConfigContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
+import ScrollToSection from "@/components/ScrollToSection";
 import LandingPage from "@/pages/LandingPage";
 import AdminPage from "@/pages/AdminPage";
 import AuthCallback from "@/pages/AuthCallback";
@@ -27,14 +28,15 @@ function AppRouter() {
 function App() {
   return (
     <SiteConfigProvider>
-      <LanguageProvider>
-        <AuthProvider>
-          <BrowserRouter>
-            <AppRouter />
-          </BrowserRouter>
-          <Toaster position="top-center" richColors />
-        </AuthProvider>
-      </LanguageProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRouter />
+          <ScrollToSection />
+        </BrowserRouter>
+        <Toaster position="top-center" richColors />
+      </AuthProvider>
+    </LanguageProvider>
     </SiteConfigProvider>
   );
 }

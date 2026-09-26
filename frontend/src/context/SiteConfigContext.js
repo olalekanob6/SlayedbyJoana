@@ -50,7 +50,12 @@ export function SiteConfigProvider({ children }) {
   const [config, setConfig] = useState(null);
 
   const loadConfig = useCallback(() => {
-    api.get("/config").then((r) => setConfig(r.data)).catch(() => {});
+    api.get("/config")
+      .then((r) => setConfig(r.data))
+      .catch(() => {
+        // Fallback local: usar datos estáticos del catálogo cuando no hay backend
+        setConfig({});
+      });
   }, []);
 
   useEffect(() => {

@@ -109,43 +109,43 @@ export default function ContentPanel() {
   };
 
   if (!settings) {
-    return <div data-testid="content-loading" className="rounded-2xl border border-[var(--border-soft)] bg-white p-8 text-sm text-[var(--muted-text)]">Cargando contenido...</div>;
+    return <div data-testid="content-loading" className="rounded-2xl border border-[var(--border-soft)] bg-white p-6 text-sm text-[var(--muted-text)]">Cargando contenido...</div>;
   }
 
-  const renderField = ([key, label, type]) => (
-    <div key={key} className="rounded-xl border border-[var(--border-soft)] bg-[var(--surface-soft)] p-4">
-      <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted-text)] mb-3">{label}</p>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        {["es", "en"].map((lang) => {
-          const InputComponent = type === "textarea" ? Textarea : Input;
-          return (
-            <div key={lang}>
+  const renderField = ([key, label, type]) => {
+    const InputComponent = type === "textarea" ? Textarea : Input;
+    return (
+      <div key={key} className="rounded-xl border border-[var(--border-soft)] bg-[var(--surface-soft)] p-4">
+        <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted-text)] mb-3">{label}</p>
+        <div className="flex flex-col gap-3">
+          {["es", "en"].map((lang) => (
+            <div key={lang} className="flex flex-col gap-2">
               <Label className="text-[10px] uppercase tracking-wider text-[var(--muted-text)]">{lang === "es" ? "Español" : "English"}</Label>
               <InputComponent
                 data-testid={`content-${key.replaceAll(".", "-")}-${lang}`}
                 value={contentValue(lang, key)}
                 onChange={(e) => updateContent(lang, key, e.target.value)}
-                className={`mt-1 bg-white border-[var(--border-soft)] ${type === "textarea" ? "min-h-24" : "h-10"}`}
+                className={`w-full bg-white border-[var(--border-soft)] h-[44px] ${type === "textarea" ? "sm:h-[60px]" : ""}`}
               />
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderLineArray = (key, label) => (
     <div className="rounded-xl border border-[var(--border-soft)] bg-[var(--surface-soft)] p-4">
       <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted-text)] mb-3">{label} (una línea por elemento)</p>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div className="flex flex-col gap-3">
         {["es", "en"].map((lang) => (
-          <div key={lang}>
+          <div key={lang} className="flex flex-col gap-2">
             <Label className="text-[10px] uppercase tracking-wider text-[var(--muted-text)]">{lang === "es" ? "Español" : "English"}</Label>
             <Textarea
               data-testid={`content-${key.replaceAll(".", "-")}-${lang}`}
               value={(contentValue(lang, key) || []).join("\n")}
               onChange={(e) => updateContent(lang, key, e.target.value.split("\n").map((line) => line.trim()).filter(Boolean))}
-              className="mt-1 min-h-28 bg-white border-[var(--border-soft)]"
+              className="w-full h-[44px] sm:h-[60px] bg-white border-[var(--border-soft)]"
             />
           </div>
         ))}
@@ -159,43 +159,47 @@ export default function ContentPanel() {
       {(contentValue("es", "faq.items") || []).map((_, index) => (
         <div key={index} className="rounded-xl bg-white border border-[var(--border-soft)] p-4 space-y-3">
           <p className="text-xs font-bold text-gold">Pregunta {index + 1}</p>
-          {["es", "en"].map((lang) => {
-            const items = contentValue(lang, "faq.items") || [];
-            return (
-              <div key={lang} className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                <Input
-                  data-testid={`faq-q-${index}-${lang}`}
-                  value={items[index]?.q || ""}
-                  onChange={(e) => {
-                    const next = [...items];
-                    next[index] = { ...next[index], q: e.target.value };
-                    updateContent(lang, "faq.items", next);
-                  }}
-                  className="bg-[var(--surface-soft)] border-[var(--border-soft)] h-10"
-                  placeholder={`Pregunta (${lang.toUpperCase()})`}
-                />
-                <Textarea
-                  data-testid={`faq-a-${index}-${lang}`}
-                  value={items[index]?.a || ""}
-                  onChange={(e) => {
-                    const next = [...items];
-                    next[index] = { ...next[index], a: e.target.value };
-                    updateContent(lang, "faq.items", next);
-                  }}
-                  className="min-h-20 bg-[var(--surface-soft)] border-[var(--border-soft)]"
-                  placeholder={`Respuesta (${lang.toUpperCase()})`}
-                />
-              </div>
-            );
-          })}
+          <div className="flex flex-col gap-3">
+            {["es", "en"].map((lang) => {
+              const items = contentValue(lang, "faq.items") || [];
+              return (
+                <div key={lang} className="flex flex-col gap-2">
+                  <Label className="text-[10px] uppercase tracking-wider text-[var(--muted-text)]">{lang === "es" ? "Pregunta" : "Question"}</Label>
+                  <Input
+                    data-testid={`faq-q-${index}-${lang}`}
+                    value={items[index]?.q || ""}
+                    onChange={(e) => {
+                      const next = [...items];
+                      next[index] = { ...next[index], q: e.target.value };
+                      updateContent(lang, "faq.items", next);
+                    }}
+                    className="w-full bg-[var(--surface-soft)] border-[var(--border-soft)] h-[44px]"
+                    placeholder={`Pregunta (${lang.toUpperCase()})`}
+                  />
+                  <Label className="text-[10px] uppercase tracking-wider text-[var(--muted-text)]">{lang === "es" ? "Respuesta" : "Answer"}</Label>
+                  <Textarea
+                    data-testid={`faq-a-${index}-${lang}`}
+                    value={items[index]?.a || ""}
+                    onChange={(e) => {
+                      const next = [...items];
+                      next[index] = { ...next[index], a: e.target.value };
+                      updateContent(lang, "faq.items", next);
+                    }}
+                    className="w-full min-h-[44px] sm:h-[80px] bg-[var(--surface-soft)] border-[var(--border-soft)]"
+                    placeholder={`Respuesta (${lang.toUpperCase()})`}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
       ))}
     </div>
   );
 
   return (
-    <div data-testid="content-panel" className="space-y-8 max-w-6xl">
-      <div className="rounded-2xl border border-[var(--border-soft)] bg-white p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div data-testid="content-panel" className="space-y-8 max-w-full overflow-x-hidden">
+      <div className="rounded-2xl border border-[var(--border-soft)] bg-white p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
           <p className="font-display font-bold text-lg flex items-center gap-2">
             <Type className="h-5 w-5 text-gold" /> Contenido de la web
@@ -203,13 +207,13 @@ export default function ContentPanel() {
           <p className="text-sm text-[var(--muted-text)] mt-1">Edita los textos existentes en español e inglés. Los cambios se aplican al guardar.</p>
         </div>
         <button data-testid="content-save-button" onClick={save} disabled={saving}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-bold text-white hover:bg-[var(--accent-hover)] disabled:opacity-60 transition-colors">
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-gold px-5 py-3 text-sm font-bold text-white hover:bg-[var(--accent-hover)] disabled:opacity-60 transition-colors min-w-[44px] min-h-[44px]">
           <Save className="h-4 w-4" />
           {saving ? "Guardando..." : "Guardar contenido"}
         </button>
       </div>
 
-      <section className="rounded-2xl border border-[var(--border-soft)] bg-white p-6 space-y-4">
+      <section className="rounded-2xl border border-[var(--border-soft)] bg-white p-4 sm:p-6 space-y-4">
         <p className="font-display font-bold text-lg flex items-center gap-2">
           <Megaphone className="h-5 w-5 text-gold" /> Aviso o promoción
         </p>
@@ -217,37 +221,39 @@ export default function ContentPanel() {
           type="button"
           data-testid="promo-enabled-toggle"
           onClick={() => updatePromo("enabled", !settings.promo?.enabled)}
-          className={`rounded-full border px-5 py-2 text-xs font-bold transition-colors ${
+          className={`rounded-full border px-5 py-2 text-xs font-bold transition-colors min-h-[44px] ${
             settings.promo?.enabled ? "border-green-400/40 text-green-500" : "border-[rgba(var(--accent-rgb),0.45)] text-[var(--muted-text)]"
           }`}
         >
           {settings.promo?.enabled ? "Visible en la web" : "Oculto"}
         </button>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          <div>
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             <Label className="text-xs uppercase tracking-wider text-[var(--muted-text)]">Texto ES</Label>
             <Textarea data-testid="promo-text-es" value={settings.promo?.text_es || ""}
                       onChange={(e) => updatePromo("text_es", e.target.value)}
-                      className="mt-1 min-h-20 bg-[var(--surface-soft)] border-[var(--border-soft)]" />
+                      className="w-full min-h-[44px] sm:h-[80px] bg-[var(--surface-soft)] border-[var(--border-soft)]" />
           </div>
-          <div>
+          <div className="flex flex-col gap-2">
             <Label className="text-xs uppercase tracking-wider text-[var(--muted-text)]">Texto EN</Label>
             <Textarea data-testid="promo-text-en" value={settings.promo?.text_en || ""}
                       onChange={(e) => updatePromo("text_en", e.target.value)}
-                      className="mt-1 min-h-20 bg-[var(--surface-soft)] border-[var(--border-soft)]" />
+                      className="w-full min-h-[44px] sm:h-[80px] bg-[var(--surface-soft)] border-[var(--border-soft)]" />
           </div>
         </div>
       </section>
 
       {CONTENT_GROUPS.map((group) => (
         <section key={group.title} className="space-y-4">
-          <h3 className="font-display text-xl font-bold">{group.title}</h3>
-          <div className="space-y-4">{group.fields.map(renderField)}</div>
+          <h3 className="font-display text-xl sm:text-2xl font-bold">{group.title}</h3>
+          <div className="space-y-4">
+            {group.fields.map(renderField)}
+          </div>
         </section>
       ))}
 
       <section className="space-y-4">
-        <h3 className="font-display text-xl font-bold">Listas de texto</h3>
+        <h3 className="font-display text-xl sm:text-2xl font-bold">Listas de texto</h3>
         {renderLineArray("marquee", "Palabras de la cinta animada")}
         {renderLineArray("about.points", "Puntos destacados de Sobre Joana")}
         {renderFaqItems()}

@@ -2,137 +2,233 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════
+   Tokens canónicos del sistema de diseño (capa DS)
+   Ver: src/design-tokens.css
+   ═══════════════════════════════════════════════════════════ */
+@import "./design-tokens.css";
+
 html {
-    scroll-behavior: auto;
+  scroll-behavior: auto;
 }
 
 body {
-    margin: 0;
-    font-family: "Outfit", sans-serif;
-    background-color: var(--page-bg, #ffffff);
-    color: var(--foreground-strong, #2e2126);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  font-family: "Outfit", system-ui, sans-serif;
+  background-color: var(--ds-bg-page, #fff3f7);
+  color: var(--ds-text-primary, #0f0d12);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Font display helper */
 .font-display {
-    font-family: "Playfair Display", serif;
+  font-family: "Playfair Display", Georgia, serif;
+}
+
+/* ── Variables del sistema de diseño (capa sobre las existentes) ── */
+:root {
+  /* ── Branding: Slayed by Joana — Rosa refinado ── */
+  --ds-font-display: "Playfair Display", Georgia, serif;
+  --ds-font-body:    "Outfit", system-ui, sans-serif;
+
+  /* ── Rosa identidad (refinado desde 222 95 125) ── */
+  --ds-blush-primary:  rgb(212 86 122);   /* #D4567A — identidad, CTAs */
+  --ds-blush-soft:     rgb(242 208 221);  /* #F2D0DD — fondos sutiles */
+  --ds-blush-pale:     rgb(248 234 239);  /* #F8EAF0 — alternancia */
+  --ds-blush-tint:     rgb(251 241 245);  /* #FBF1F5 — bg casi-blanco */
+  --ds-blush-deep:     rgb(168 34 82);    /* #A82252 — estado activo */
+  --ds-blush-hover:    rgb(188 60 100);   /* #BC3C64 — hover interactivos */
+  --ds-blush-bg:       rgb(255 243 247);  /* #FFF3F7 — fondo página */
+
+  /* ── Onyx (negro premium más profundo) ── */
+  --ds-onyx-primary:  rgb(15 13 18);     /* #0F0D12 */
+  --ds-onyx-soft:     rgb(42 38 46);     /* #2A262E */
+  --ds-onyx-muted:    rgb(110 105 115);  /* #6E6973 */
+  --ds-onyx-border:   rgb(215 210 218);  /* #D7D2DA */
+  --ds-onyx-hover:    rgb(28 25 32);     /* #1C1920 */
+
+  /* ── Cream (blancos cálidos) ── */
+  --ds-cream-warm:  rgb(253 248 243);
+  --ds-cream-soft:  rgb(255 250 245);
+
+  /* ── Cocarde (rosa chillón — uso registrado para CTAs hero) ── */
+  --ds-cocarde-primary:  rgb(205 40 82);
+  --ds-cocarde-soft:     rgb(250 218 228);
+
+  /* ── Cool (complemento atmosférico) ── */
+  --ds-cool-primary:  rgb(68 50 70);
+  --ds-cool-soft:     rgb(225 218 228);
+  --ds-cool-border:   rgb(200 193 205);
+
+  /* ── Página ── */
+  --ds-bg-page:          var(--ds-blush-bg);
+  --ds-bg-elevated:      #ffffff;
+  --ds-bg-muted:         var(--ds-cream-soft);
+  --ds-bg-accent:        var(--ds-blush-tint);
+  --ds-bg-ghost:         transparent;
+  --ds-bg-inset:         var(--ds-cream-warm);
+  --ds-bg-glass:         rgba(255,255,255,0.72);
+  --ds-bg-glass-border:  rgba(255,255,255,0.35);
+
+  /* ── Texto ── */
+  --ds-text-primary:    var(--ds-onyx-primary);
+  --ds-text-secondary:  var(--ds-onyx-soft);
+  --ds-text-muted:      var(--ds-onyx-muted);
+  --ds-text-inverse:    #ffffff;
+  --ds-text-accent:     var(--ds-blush-deep);
+  --ds-text-ghost:      var(--ds-onyx-soft);
+
+  /* ── Bordes ── */
+  --ds-border-subtle:  var(--ds-onyx-border);
+  --ds-border-default: var(--ds-cool-border);
+  --ds-border-blush:   var(--ds-blush-soft);
+  --ds-border-onion:   transparent;
+
+  /* ── Sombra ── */
+  --ds-shadow-sm:         0 1px 2px 0 rgba(15,13,18,0.04), 0 1px 3px 0 rgba(15,13,18,0.05);
+  --ds-shadow-md:         0 2px 6px 0 rgba(15,13,18,0.04), 0 4px 12px -4px rgba(15,13,18,0.05);
+  --ds-shadow-lg:         0 6px 14px -4px rgba(15,13,18,0.06), 0 10px 28px -8px rgba(15,13,18,0.09);
+  --ds-shadow-xl:         0 16px 48px -10px rgba(15,13,18,0.15), 0 6px 16px -6px rgba(15,13,18,0.06);
+  --ds-shadow-glow:       0 8px 32px -8px rgba(212,86,122,0.35);
+  --ds-shadow-glow-soft:  0 4px 20px -6px rgba(212,86,122,0.18);
+  --ds-shadow-elevated:   0 4px 16px -4px rgba(15,13,18,0.05), 0 10px 32px -10px rgba(15,13,18,0.08);
+  --ds-shadow-popover:    0 6px 18px -4px rgba(15,13,18,0.06), 0 2px 8px -4px rgba(15,13,18,0.04);
+  --ds-shadow-button:     0 2px 4px -2px rgba(212,86,122,0.18), 0 4px 10px -4px rgba(212,86,122,0.10);
+  --ds-shadow-button-hover: 0 4px 10px -2px rgba(212,86,122,0.28), 0 8px 20px -6px rgba(212,86,122,0.14);
+
+  /* ── Ring focus ── */
+  --ds-ring-color:  rgba(212,86,122,0.16);
+  --ds-ring-width:  3px;
 }
 
 ::selection {
-    background: rgb(var(--accent-rgb, 229 107 158));
-    color: #ffffff;
+  background: var(--ds-blush-primary, #d4567a);
+  color: #ffffff;
 }
 
 ::-webkit-scrollbar {
-    width: 10px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: var(--page-bg, #ffffff);
+  background: var(--ds-bg-page, #fff3f7);
 }
 ::-webkit-scrollbar-thumb {
-    background: var(--border-soft, #f3d3e2);
-    border-radius: 8px;
+  background: var(--ds-border-subtle, #d7d2da);
+  border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: rgb(var(--accent-rgb, 229 107 158));
+  background: var(--ds-blush-soft, #f2d0dd);
 }
 
 @layer base {
-    :root {
-        --background: 330 100% 99%;
-        --foreground: 330 18% 15%;
-        --card: 335 100% 97%;
-        --card-foreground: 330 18% 15%;
-        --popover: 335 100% 97%;
-        --popover-foreground: 330 18% 15%;
-        --primary: 337 72% 66%;
-        --primary-foreground: 0 0% 100%;
-        --secondary: 335 80% 96%;
-        --secondary-foreground: 330 18% 15%;
-        --muted: 335 60% 95%;
-        --muted-foreground: 330 15% 45%;
-        --accent: 337 72% 66%;
-        --accent-foreground: 0 0% 100%;
-        --destructive: 0 72% 51%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 335 50% 88%;
-        --input: 335 50% 86%;
-        --ring: 337 72% 66%;
-        --radius: 0.75rem;
-    }
+  :root {
+    --background: 330 100% 99%;
+    --foreground: 330 18% 15%;
+    --card: 335 100% 97%;
+    --card-foreground: 330 18% 15%;
+    --popover: 335 100% 97%;
+    --popover-foreground: 330 18% 15%;
+    --primary: 337 72% 66%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 335 80% 96%;
+    --secondary-foreground: 330 18% 15%;
+    --muted: 335 60% 95%;
+    --muted-foreground: 330 15% 45%;
+    --accent: 337 72% 66%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 335 50% 88%;
+    --input: 335 50% 86%;
+    --ring: 337 72% 66%;
+    --radius: 0.75rem;
+  }
 }
 
 @layer base {
-    * {
-        @apply border-border;
-    }
-    body {
-        @apply bg-background text-foreground;
-    }
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
+/* ── Overlay click-outside global (checkbox oculto) ── */
+.ds-click-outside {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  display: none;
+}
+
+/* ── Gold glow (compatibilidad con estilos existentes) ── */
 .gold-glow {
-    box-shadow: 0 8px 40px -10px rgba(var(--accent-rgb, 229 107 158), 0.45);
+  box-shadow: 0 8px 32px -8px rgba(212,86,122,0.35);
 }
 
 .text-gold-gradient {
-    background: linear-gradient(120deg, rgb(var(--accent-rgb, 229 107 158)) 0%, var(--border-soft, #f9c9dd) 45%, var(--accent-hover, #d14d81) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  background: var(--ds-grad-blush-text, linear-gradient(120deg,
+    rgb(212 86 122) 0%,
+    rgb(242 208 221) 45%,
+    rgb(188 60 100) 100%));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .hero-grid-bg {
-    background-image:
-        radial-gradient(ellipse 80% 55% at 70% 10%, rgba(var(--accent-rgb, 229 107 158), 0.12), transparent),
-        radial-gradient(ellipse 55% 45% at 10% 90%, var(--surface-soft, #fff3f7));
+  background-image:
+    radial-gradient(ellipse 80% 55% at 70% 10%, rgba(212,86,122,0.10), transparent),
+    radial-gradient(ellipse 55% 45% at 10% 90%, var(--ds-bg-muted));
 }
 
 @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 .animate-marquee {
-    animation: marquee 28s linear infinite;
+  animation: marquee 28s linear infinite;
 }
 
 @keyframes float-slow {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-12px); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 .animate-float-slow {
-    animation: float-slow 6s ease-in-out infinite;
+  animation: float-slow 6s ease-in-out infinite;
 }
 
 @layer base {
-    [data-debug-wrapper="true"] {
-        display: contents !important;
-    }
+  [data-debug-wrapper="true"] {
+    display: contents !important;
+  }
 
-    [data-debug-wrapper="true"] > * {
-        margin-left: inherit;
-        margin-right: inherit;
-        margin-top: inherit;
-        margin-bottom: inherit;
-        padding-left: inherit;
-        padding-right: inherit;
-        padding-top: inherit;
-        padding-bottom: inherit;
-        column-gap: inherit;
-        row-gap: inherit;
-        gap: inherit;
-        border-left-width: inherit;
-        border-right-width: inherit;
-        border-top-width: inherit;
-        border-bottom-width: inherit;
-        border-left-style: inherit;
-        border-right-style: inherit;
-        border-top-style: inherit;
-        border-bottom-style: inherit;
-        border-left-color: inherit;
-        border-right-color: inherit;
-        border-top-color: inherit;
-        border-bottom-color: inherit;
-    }
+  [data-debug-wrapper="true"] > * {
+    margin-left: inherit;
+    margin-right: inherit;
+    margin-top: inherit;
+    margin-bottom: inherit;
+    padding-left: inherit;
+    padding-right: inherit;
+    padding-top: inherit;
+    padding-bottom: inherit;
+    column-gap: inherit;
+    row-gap: inherit;
+    gap: inherit;
+    border-left-width: inherit;
+    border-right-width: inherit;
+    border-top-width: inherit;
+    border-bottom-width: inherit;
+    border-left-style: inherit;
+    border-right-style: inherit;
+    border-top-style: inherit;
+    border-bottom-style: inherit;
+    border-left-color: inherit;
+    border-right-color: inherit;
+    border-top-color: inherit;
+    border-bottom-color: inherit;
+  }
 }
