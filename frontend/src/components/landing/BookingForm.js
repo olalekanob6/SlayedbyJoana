@@ -169,25 +169,35 @@ export default function BookingForm({ preselectedService, onSuccess }) {
   }, [form.date, form.service, allServiceOptions]);
 
   // ── Calendar fetch ────────────────────────────────────────────────────────
+  const calAbortRef = useRef(null);
   useEffect(() => {
+    if (calAbortRef.current) {
+      calAbortRef.current.abort();
+    }
+    calAbortRef.current = new AbortController();
     setCalendarLoading(true);
     const start = new Date();
-    const end   = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 60);
+    const end   = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 34);
     const serviceOption = allServiceOptions.find((o) => o.id === form.service);
     const params = new URLSearchParams({
       start:  start.toISOString().slice(0, 10),
       end:    end.toISOString().slice(0, 10),
       service_key: serviceOption?.key || serviceOption?.name || form.service,
     });
-    api.get(`/bookings/calendar?${params}`)
+    api.get(`/bookings/calendar?${params}`, { signal: calAbortRef.current.signal })
       .then((r) => {
         setCalendarInfo(r.data.dates || {});
         setCalendarLoading(false);
       })
-      .catch(() => {
-        setCalendarInfo({});
-        setCalendarLoading(false);
+      .catch((err) => {
+        if (err.name !== "CanceledError") {
+          setCalendarInfo({});
+          setCalendarLoading(false);
+        }
       });
+    return () => {
+      calAbortRef.current?.abort();
+    };
   }, [form.service, allServiceOptions]);
 
   // ── Step validation ───────────────────────────────────────────────────────

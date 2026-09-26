@@ -99,7 +99,7 @@ async def login(payload: LoginIn, request: Request, response: Response):
     await db.login_attempts.delete_one({"identifier": identifier})
     token = create_access_token(user["id"], email)
     response.set_cookie(key="access_token", value=token, httponly=True, secure=True,
-                        samesite="lax", max_age=7 * 24 * 3600, path="/")
+                        samesite="none", max_age=7 * 24 * 3600, path="/")
     return {"id": user["id"], "email": email, "name": user.get("name", "Joana"), "role": user.get("role", "admin")}
 
 ADMIN_EMAILS = set(filter(None, [e.strip().lower() for e in
@@ -808,22 +808,33 @@ async def booking_calendar(start: str, end: str, service_key: str = "", service:
         raise HTTPException(status_code=400, detail="El rango debe tener entre 0 y 92 días")
     settings = await get_settings()
     duration = service_duration_minutes(settings, service_key, service)
-    dates = {}
-    for offset in range((end_date - start_date).days + 1):
-        date_value = (start_date + timedelta(days=offset)).isoformat()
+    date_list = [(start_date + timedelta(days=offset)).isoformat()
+                 for offset in range((end_date - start_date).days + 1)]
+    day_info = {}
+    for date_value in date_list:
         day_settings, all_slots = schedule_for_date(settings, date_value)
         available_slots = fitting_slots(day_settings, all_slots, duration)
-        docs = await db.bookings.find(
-            {"date": date_value, "status": {"$ne": "cancelled"}},
-            {"_id": 0, "time": 1, "service": 1, "service_key": 1, "duration_minutes": 1},
-        ).to_list(200)
-        taken = {slot for slot in available_slots if slot_overlaps_booking(slot, duration, docs, settings)}
-        capacity = int(settings.get("daily_capacity") or 2)
+        day_info[date_value] = (day_settings, available_slots)
+    docs = await db.bookings.find(
+        {"date": {"$in": date_list}, "status": {"$ne": "cancelled"}},
+        {"_id": 0, "date": 1, "time": 1, "service": 1, "service_key": 1, "duration_minutes": 1},
+    ).to_list(200)
+    docs_by_date: dict[str, list] = {}
+    for d in docs:
+        dv = d.get("date")
+        if dv:
+            docs_by_date.setdefault(dv, []).append(d)
+    capacity = int(settings.get("daily_capacity") or 2)
+    dates = {}
+    for date_value in date_list:
+        day_settings, available_slots = day_info[date_value]
+        daily_docs = docs_by_date.get(date_value, [])
+        taken = {slot for slot in available_slots if slot_overlaps_booking(slot, duration, daily_docs, settings)}
         dates[date_value] = {
             "open": bool(day_settings.get("open")) and bool(available_slots),
-            "full": bool(day_settings.get("open")) and (len(docs) >= capacity or len(available_slots) == len(taken)),
+            "full": bool(day_settings.get("open")) and (len(daily_docs) >= capacity or len(available_slots) == len(taken)),
             "available_slots": max(len(available_slots) - len(taken), 0),
-            "bookings_count": len(docs),
+            "bookings_count": len(daily_docs),
         }
     return {"start": start, "end": end, "dates": dates, "duration_minutes": duration}
 
@@ -1125,7 +1136,18 @@ async def public_config():
     }
 
 # ---------------- Ajustes del sitio y administradoras ----------------
+_settings_cache: dict | None = None
+_settings_lock = asyncio.Lock()
+
+def _invalidate_settings_cache():
+    global _settings_cache
+    _settings_cache = None
+
 async def get_settings() -> dict:
+    global _settings_cache
+    async with _settings_lock:
+        if _settings_cache is not None:
+            return _settings_cache
     defaults = {
         "id": "site",
         "owner_notify_email": OWNER_NOTIFY_EMAIL,
@@ -1185,6 +1207,8 @@ async def get_settings() -> dict:
     }
     merged["promo"] = {**defaults["promo"], **(doc.get("promo") or {})}
     merged["theme"] = {**DEFAULT_THEME, **(doc.get("theme") or {})}
+    async with _settings_lock:
+        _settings_cache = merged
     return merged
 
 @api_router.get("/admin/settings")
@@ -1374,6 +1398,7 @@ async def admin_put_settings(payload: SettingsIn, user=Depends(get_admin_user)):
         "theme": theme,
     }
     await db.settings.update_one({"id": "site"}, {"$set": doc}, upsert=True)
+    _invalidate_settings_cache()
     return {"ok": True}
 
 @api_router.get("/admin/admins")
