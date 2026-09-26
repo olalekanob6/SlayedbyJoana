@@ -99,7 +99,7 @@ async def login(payload: LoginIn, request: Request, response: Response):
     await db.login_attempts.delete_one({"identifier": identifier})
     token = create_access_token(user["id"], email)
     response.set_cookie(key="access_token", value=token, httponly=True, secure=True,
-                        samesite="none", max_age=7 * 24 * 3600, path="/")
+                        samesite="lax", max_age=7 * 24 * 3600, path="/")
     return {"id": user["id"], "email": email, "name": user.get("name", "Joana"), "role": user.get("role", "admin")}
 
 ADMIN_EMAILS = set(filter(None, [e.strip().lower() for e in
@@ -112,7 +112,7 @@ async def get_google_user(request: Request) -> dict:
         if auth.startswith("Bearer "):
             token = auth[7:]
     if not token:
-        raise HTTPException(status_code=401, detail="Inicia sesión con Google para continuar")
+        raise HTTPException(status_code=401, detail="Not authenticated")
     session = await db.user_sessions.find_one({"session_token": token}, {"_id": 0})
     if not session:
         raise HTTPException(status_code=401, detail="Sesión no válida")
@@ -140,10 +140,10 @@ async def get_admin_user(request: Request) -> dict:
 @api_router.get("/auth/me")
 async def auth_me(request: Request):
     try:
-        return await get_google_user(request)
+        return await get_current_user(request)
     except HTTPException:
         pass
-    return await get_current_user(request)
+    return await get_google_user(request)
 
 class GoogleSessionIn(BaseModel):
     session_id: str
